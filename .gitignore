@@ -1,0 +1,10 @@
+data/openfootball_json/
+data/archive/
+data/*.sqlite*
+data/published/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+node_modules/
+data/tickets/

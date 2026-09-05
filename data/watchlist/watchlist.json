@@ -1,0 +1,1566 @@
+{
+ "n_ticket_lines": 62,
+ "n_teams": 110,
+ "summary": {
+  "supported": 48,
+  "historical_only": 4,
+  "awaiting_coverage": 58,
+  "ambiguous": 0
+ },
+ "teams": [
+  {
+   "ticket_name": "Benfica",
+   "country": "pt",
+   "country_name": "Portugal",
+   "appearances": 2,
+   "tickets": [
+    "ticket_01",
+    "ticket_14"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "pt:benfica",
+   "competition": "pt.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Estoril Praia",
+   "country": "pt",
+   "country_name": "Portugal",
+   "appearances": 1,
+   "tickets": [
+    "ticket_01"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "pt:estoril-praia",
+   "competition": "pt.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Real Madrid",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 2,
+   "tickets": [
+    "ticket_01",
+    "ticket_05"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:real-madrid",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Malaga CF",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 1,
+   "tickets": [
+    "ticket_01"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:malaga",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "FK Zemun",
+   "country": "rs",
+   "country_name": "Serbia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_01"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Serbia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Crvena Zvezda",
+   "country": "rs",
+   "country_name": "Serbia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_01"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Serbia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Galatasaray SK",
+   "country": "tr",
+   "country_name": "Türkiye",
+   "appearances": 1,
+   "tickets": [
+    "ticket_01"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Türkiye: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Göztepe",
+   "country": "tr",
+   "country_name": "Türkiye",
+   "appearances": 1,
+   "tickets": [
+    "ticket_01"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Türkiye: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "NK Istra 1961",
+   "country": "hr",
+   "country_name": "Croatia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_02"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Croatia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "GNK Dinamo Zagreb",
+   "country": "hr",
+   "country_name": "Croatia",
+   "appearances": 2,
+   "tickets": [
+    "ticket_02",
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Croatia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Sparta Prague",
+   "country": "cz",
+   "country_name": "Czechia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_02"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Czechia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Slavia Prague",
+   "country": "cz",
+   "country_name": "Czechia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_02"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Czechia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "FC Utrecht",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_02"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:utrecht",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "PSV Eindhoven",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_02"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:psv",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Académico de Viseu",
+   "country": "pt",
+   "country_name": "Portugal",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "pt:academico-viseu",
+   "competition": "pt.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "FC Porto",
+   "country": "pt",
+   "country_name": "Portugal",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "pt:porto",
+   "competition": "pt.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Borussia Dortmund",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:borussia-dortmund",
+   "competition": "de.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Hamburger SV",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:hamburger",
+   "competition": "de.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Tottenham Hotspur",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 2,
+   "tickets": [
+    "ticket_03",
+    "ticket_12"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:tottenham-hotspur",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Newcastle United",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:newcastle-united",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Aris Limassol",
+   "country": "cy",
+   "country_name": "Cyprus",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Cyprus: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Apollon Limassol",
+   "country": "cy",
+   "country_name": "Cyprus",
+   "appearances": 1,
+   "tickets": [
+    "ticket_03"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Cyprus: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "IF Elfsborg",
+   "country": "se",
+   "country_name": "Sweden",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Sweden: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Västerås SK FK",
+   "country": "se",
+   "country_name": "Sweden",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Sweden: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Kolding IF",
+   "country": "dk",
+   "country_name": "Denmark",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Denmark: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Vejle BK",
+   "country": "dk",
+   "country_name": "Denmark",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Denmark: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "IK Brage",
+   "country": "se",
+   "country_name": "Sweden",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Sweden: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Örebro SK",
+   "country": "se",
+   "country_name": "Sweden",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Sweden: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "KÍ Klaksvík",
+   "country": "fo",
+   "country_name": "Faroe Islands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Faroe Islands: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Lech Poznan",
+   "country": "pl",
+   "country_name": "Poland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_04"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Poland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Real Sociedad",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 2,
+   "tickets": [
+    "ticket_05",
+    "ticket_15"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:real-sociedad",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Barcelona",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 2,
+   "tickets": [
+    "ticket_05",
+    "ticket_08"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:barcelona",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Athletic Bilbao",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 1,
+   "tickets": [
+    "ticket_05"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:athletic",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Chelsea",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 2,
+   "tickets": [
+    "ticket_05",
+    "ticket_20"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:chelsea",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Luton Town",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_05"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:luton-town",
+   "competition": "en.1",
+   "status": "historical_only",
+   "note": "seen in Premier League in past seasons, not this season (cup tie or lower division)"
+  },
+  {
+   "ticket_name": "Bayern Munich",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_05"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:bayern-munchen",
+   "competition": "de.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Stuttgart",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_05"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:stuttgart",
+   "competition": "de.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Dukla Prague",
+   "country": "cz",
+   "country_name": "Czechia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Czechia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "SK Slavia Prague B",
+   "country": "cz",
+   "country_name": "Czechia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": true,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Czechia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "SK Kladno",
+   "country": "cz",
+   "country_name": "Czechia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Czechia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "FC Vlasim",
+   "country": "cz",
+   "country_name": "Czechia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Czechia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Holstein Kiel",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:holstein-kiel",
+   "competition": "de.1",
+   "status": "historical_only",
+   "note": "seen in Bundesliga in past seasons, not this season (cup tie or lower division)"
+  },
+  {
+   "ticket_name": "FC St. Pauli",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:st.-pauli",
+   "competition": "de.1",
+   "status": "historical_only",
+   "note": "seen in Bundesliga in past seasons, not this season (cup tie or lower division)"
+  },
+  {
+   "ticket_name": "Al Wahda FC (UAE)",
+   "country": "ae",
+   "country_name": "UAE",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "UAE: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Ajman Club",
+   "country": "ae",
+   "country_name": "UAE",
+   "appearances": 1,
+   "tickets": [
+    "ticket_06"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "UAE: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Crystal Palace",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_07"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:crystal-palace",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Manchester City",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_07"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:manchester-city",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Rayo Vallecano",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 1,
+   "tickets": [
+    "ticket_08"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:rayo-vallecano",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Al-Ettifaq FC",
+   "country": "sa",
+   "country_name": "Saudi Arabia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Saudi Arabia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Al-Riyadh SC",
+   "country": "sa",
+   "country_name": "Saudi Arabia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Saudi Arabia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "RFC Seraing",
+   "country": "be",
+   "country_name": "Belgium",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Belgium: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "KSC Lokeren Temse",
+   "country": "be",
+   "country_name": "Belgium",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Belgium: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Heracles Almelo",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:heracles-almelo",
+   "competition": "nl.1",
+   "status": "historical_only",
+   "note": "seen in Eredivisie in past seasons, not this season (cup tie or lower division)"
+  },
+  {
+   "ticket_name": "FC Den Bosch",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:den-bosch",
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Netherlands: plays outside the ingested competitions (cup / lower division)"
+  },
+  {
+   "ticket_name": "Roda JC Kerkrade",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:roda-jc-kerkrade",
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Netherlands: plays outside the ingested competitions (cup / lower division)"
+  },
+  {
+   "ticket_name": "Helmond Sport",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_09"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:helmond-sport",
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Netherlands: plays outside the ingested competitions (cup / lower division)"
+  },
+  {
+   "ticket_name": "Nyiregyhaza Spartacus FC",
+   "country": "hu",
+   "country_name": "Hungary",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Hungary: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Paksi FC",
+   "country": "hu",
+   "country_name": "Hungary",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Hungary: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "SV 07 Elversberg",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:elversberg",
+   "competition": "de.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Bayer Leverkusen",
+   "country": "de",
+   "country_name": "Germany",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "de:bayer-leverkusen",
+   "competition": "de.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Celtic",
+   "country": "sco",
+   "country_name": "Scotland",
+   "appearances": 2,
+   "tickets": [
+    "ticket_10",
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Scotland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Falkirk FC",
+   "country": "sco",
+   "country_name": "Scotland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Scotland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Al Duhail SC",
+   "country": "qa",
+   "country_name": "Qatar",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Qatar: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Al Arabi Doha SC",
+   "country": "qa",
+   "country_name": "Qatar",
+   "appearances": 1,
+   "tickets": [
+    "ticket_10"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Qatar: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "SC Telstar",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 2,
+   "tickets": [
+    "ticket_11",
+    "ticket_12"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:telstar",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Sparta Rotterdam",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 2,
+   "tickets": [
+    "ticket_11",
+    "ticket_16"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:sparta-rotterdam",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Charlton Athletic",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_12"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:charlton-athletic",
+   "competition": "en.2",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Ajax",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 2,
+   "tickets": [
+    "ticket_12",
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:ajax",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "LASK Linz",
+   "country": "at",
+   "country_name": "Austria",
+   "appearances": 1,
+   "tickets": [
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Austria: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Viking FK",
+   "country": "no",
+   "country_name": "Norway",
+   "appearances": 2,
+   "tickets": [
+    "ticket_13",
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Norway: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "FC Sion",
+   "country": "ch",
+   "country_name": "Switzerland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Switzerland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Lille OSC",
+   "country": "fr",
+   "country_name": "France",
+   "appearances": 1,
+   "tickets": [
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "fr:lille",
+   "competition": "fr.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Paris Saint-Germain",
+   "country": "fr",
+   "country_name": "France",
+   "appearances": 1,
+   "tickets": [
+    "ticket_13"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "fr:paris-saint-germain",
+   "competition": "fr.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Man Utd",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_14"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:manchester-united",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Ipswich Town",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_14"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:ipswich-town",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "AGF Aarhus",
+   "country": "dk",
+   "country_name": "Denmark",
+   "appearances": 2,
+   "tickets": [
+    "ticket_14",
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Denmark: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Oud-Heverlee Leuven",
+   "country": "be",
+   "country_name": "Belgium",
+   "appearances": 1,
+   "tickets": [
+    "ticket_15"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Belgium: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Standard de Liège",
+   "country": "be",
+   "country_name": "Belgium",
+   "appearances": 1,
+   "tickets": [
+    "ticket_15"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Belgium: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Espanyol",
+   "country": "es",
+   "country_name": "Spain",
+   "appearances": 1,
+   "tickets": [
+    "ticket_15"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "es:espanyol",
+   "competition": "es.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Olympique Lyonnais",
+   "country": "fr",
+   "country_name": "France",
+   "appearances": 1,
+   "tickets": [
+    "ticket_15"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "fr:lyon",
+   "competition": "fr.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Le Havre AC",
+   "country": "fr",
+   "country_name": "France",
+   "appearances": 1,
+   "tickets": [
+    "ticket_15"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "fr:le-havre",
+   "competition": "fr.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Excelsior Rotterdam",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_16"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:excelsior",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "RC Strasbourg",
+   "country": "fr",
+   "country_name": "France",
+   "appearances": 1,
+   "tickets": [
+    "ticket_16"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "fr:strasbourg",
+   "competition": "fr.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "RC Lens",
+   "country": "fr",
+   "country_name": "France",
+   "appearances": 1,
+   "tickets": [
+    "ticket_16"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "fr:lens",
+   "competition": "fr.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Wisla Kraków",
+   "country": "pl",
+   "country_name": "Poland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_16"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Poland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "KS Wieczysta Kraków",
+   "country": "pl",
+   "country_name": "Poland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_16"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Poland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Rosenborg BK",
+   "country": "no",
+   "country_name": "Norway",
+   "appearances": 2,
+   "tickets": [
+    "ticket_17",
+    "ticket_21"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Norway: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Viborg FF",
+   "country": "dk",
+   "country_name": "Denmark",
+   "appearances": 1,
+   "tickets": [
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Denmark: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Legia Warszawa",
+   "country": "pl",
+   "country_name": "Poland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Poland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "RKS Radomiak Radom",
+   "country": "pl",
+   "country_name": "Poland",
+   "appearances": 1,
+   "tickets": [
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Poland: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "NK Jesenice",
+   "country": "si",
+   "country_name": "Slovenia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Slovenia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "NK Krsko Posavje",
+   "country": "si",
+   "country_name": "Slovenia",
+   "appearances": 1,
+   "tickets": [
+    "ticket_17"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Slovenia: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Samsunspor",
+   "country": "tr",
+   "country_name": "Türkiye",
+   "appearances": 1,
+   "tickets": [
+    "ticket_18"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Türkiye: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Fenerbahce Istanbul",
+   "country": "tr",
+   "country_name": "Türkiye",
+   "appearances": 1,
+   "tickets": [
+    "ticket_18"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Türkiye: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "AZ Alkmaar",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_19"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:az-alkmaar",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Go Ahead Eagles",
+   "country": "nl",
+   "country_name": "Netherlands",
+   "appearances": 1,
+   "tickets": [
+    "ticket_19"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "nl:go-ahead-eagles",
+   "competition": "nl.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Aston Villa",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_19"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:aston-villa",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Arsenal",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_19"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:arsenal",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Brighton",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_20"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:brighton-and-hove-albion",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Liverpool",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_21"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:liverpool",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Nottingham Forest",
+   "country": "en",
+   "country_name": "England",
+   "appearances": 1,
+   "tickets": [
+    "ticket_21"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "en:nottingham-forest",
+   "competition": "en.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Bodoe/Glimt",
+   "country": "no",
+   "country_name": "Norway",
+   "appearances": 1,
+   "tickets": [
+    "ticket_21"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Norway: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Cagliari",
+   "country": "it",
+   "country_name": "Italy",
+   "appearances": 1,
+   "tickets": [
+    "ticket_21"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "it:cagliari",
+   "competition": "it.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Inter",
+   "country": "it",
+   "country_name": "Italy",
+   "appearances": 1,
+   "tickets": [
+    "ticket_21"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "it:internazionale",
+   "competition": "it.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "The New Saints FC",
+   "country": "wal",
+   "country_name": "Wales",
+   "appearances": 1,
+   "tickets": [
+    "ticket_23"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Wales: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Colwyn Bay",
+   "country": "wal",
+   "country_name": "Wales",
+   "appearances": 1,
+   "tickets": [
+    "ticket_23"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Wales: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Barry Town United FC",
+   "country": "wal",
+   "country_name": "Wales",
+   "appearances": 1,
+   "tickets": [
+    "ticket_23"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Wales: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Airbus UK Broughton",
+   "country": "wal",
+   "country_name": "Wales",
+   "appearances": 1,
+   "tickets": [
+    "ticket_23"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": null,
+   "competition": null,
+   "status": "awaiting_coverage",
+   "note": "Wales: no supported competition ingested yet"
+  },
+  {
+   "ticket_name": "Rio Ave",
+   "country": "pt",
+   "country_name": "Portugal",
+   "appearances": 1,
+   "tickets": [
+    "ticket_24"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "pt:rio-ave",
+   "competition": "pt.1",
+   "status": "supported",
+   "note": ""
+  },
+  {
+   "ticket_name": "Sporting CP",
+   "country": "pt",
+   "country_name": "Portugal",
+   "appearances": 1,
+   "tickets": [
+    "ticket_24"
+   ],
+   "reserve_or_youth": false,
+   "canonical_id": "pt:sporting-portugal",
+   "competition": "pt.1",
+   "status": "supported",
+   "note": ""
+  }
+ ]
+}
