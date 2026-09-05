@@ -283,7 +283,7 @@ def _mk(l, fx):
     pr = l.price
     return {"market": s.market, "line": s.line, "label": describe(s.market, s.line, fx["home"], fx["away"]),
             "subject": subject(s.market, fx["home"], fx["away"]), "settlement": settlement_text(s.market, s.line, fx["home"], fx["away"]),
-            "p_win": s.p_win, "p_push": s.p_push, "p_loss": s.p_loss, "survival": s.survival, "mc_se": s.mc_se,
+            "p_win": s.p_win, "p_push": s.p_push, "p_loss": s.p_loss, "survival": s.survival, "mc_se": s.mc_se, "n_sim": s.n,
             "qualified": l.qualified, "reason": l.reason, "marginal": l.marginal, "break_even": l.break_even,
             "odds": ({"price": pr["price"], "bookmaker": pr["bookmaker"], "last_update": pr.get("last_update"), "retrieved_at": pr.get("retrieved_at"),
                       "n_bookmakers": pr.get("n_bookmakers"), "stale": pr.get("stale", False)} if pr else None),

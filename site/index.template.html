@@ -180,9 +180,9 @@ function fixtureCard(f, day){
   let right='';
   if(p && status==='pick'){
     right = `<div class="pick"><div class="mk">${esc(p.label)}</div>${p.odds?`<div class="wpl">${fmtOdds(p.odds.price)} ${esc(p.odds.bookmaker)} · EV ${(p.ev*100).toFixed(1)}%</div>`:`<div class="wpl">break-even ${fmtOdds(p.break_even)} (est.)</div>`}
-      <div class="sv">${pct(p.survival)}<em>survive</em></div>
+      <div class="sv">${pct(p.survival)}<em>survival</em></div>
       <div class="bar"><b class="w" style="width:${p.p_win*100}%"></b><b class="p" style="width:${p.p_push*100}%"></b></div>
-      <div class="wpl">W ${pct0(p.p_win)} · P ${pct0(p.p_push)} · L ${pct0(p.p_loss)}</div></div>`;
+      <div class="wpl">Win ${pct0(p.p_win)} · Refund ${pct0(p.p_push)} · Loss ${pct0(p.p_loss)}</div></div>`;
   } else if(status==='started'){
     right = `<div class="state"><b>Started</b>${p?esc(p.label)+' was the pre-match line':'no recommendation'}</div>`;
   } else if(status==='qualified_capped'){
@@ -212,14 +212,14 @@ function lineRow(m, prim){
   return `<tr class="${m.qualified?'q':''} ${isP?'prim':''}"><td>Over ${m.line.toFixed(1)}${isP?' <span class="tag rank">primary</span>':''}</td><td>${pct(m.p_win)}</td><td>${pct(m.p_push)}</td><td>${pct(m.p_loss)}</td><td>${pct(m.survival)}</td><td>${fmtOdds(m.break_even)}</td><td>${odds}</td><td>${ev}</td><td>${st}</td></tr>`;
 }
 function section(title, rows, prim){
-  return `<h4 class="sec-h">${esc(title)}</h4><div class="tbl-wrap"><table><thead><tr><th>Line</th><th>Win</th><th>Push</th><th>Loss</th><th>Survival</th><th>B/E*</th><th>Odds</th><th>EV</th><th>Qualifies</th></tr></thead><tbody>${rows.map(m=>lineRow(m,prim)).join('')}</tbody></table></div>`;
+  return `<h4 class="sec-h">${esc(title)}</h4><div class="tbl-wrap"><table><thead><tr><th>Line</th><th>Win</th><th>Refund</th><th>Loss</th><th>Survival</th><th>B/E*</th><th>Odds</th><th>EV</th><th>Qualifies</th></tr></thead><tbody>${rows.map(m=>lineRow(m,prim)).join('')}</tbody></table></div>`;
 }
 function details(f){
   if(!f.markets) return `<div class="det"><p class="muted small">${esc(f.reason||'No model output for this fixture.')}</p>${verif(f)}</div>`;
   const prim=f.primary; const s=f.sim, g=f.predicted_goals;
   const by = k => f.markets.filter(m=>m.market===k);
   const primBlock = prim ? `<div class="primary-box"><div class="pb-l">Primary selection</div><div class="pb-t">${esc(prim.label)}</div>
-      <div class="pb-s">Simulation: ${pct0(prim.p_win)} win / ${pct0(prim.p_push)} push / ${pct0(prim.p_loss)} loss · Survival ${pct(prim.survival)} (MC ±${(prim.mc_se*100).toFixed(2)} pts)</div>
+      <div class="pb-s">Win ${pct0(prim.p_win)} | Refund ${pct0(prim.p_push)} | Loss ${pct0(prim.p_loss)} — Survival (win + refund) ${pct(prim.survival)} · from ${prim.n_sim.toLocaleString()} completed simulations (MC ±${(prim.mc_se*100).toFixed(2)} pts)</div>
       <ul class="pb-rules">${prim.settlement.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
       <div class="pb-s">${prim.odds?`Bookmaker: ${fmtOdds(prim.odds.price)} at ${esc(prim.odds.bookmaker)} (updated ${fmtDT(prim.odds.last_update)}) · EV ${(prim.ev*100).toFixed(1)}% per unit`:`No bookmaker price available — model break-even <b>${fmtOdds(prim.break_even)}</b> (estimate: EV is zero at this price, positive above it)`}${f.basis==='ev'?' · chosen by highest EV':' · chosen by highest break-even among qualifying lines'}</div></div>` : `<div class="primary-box pass"><div class="pb-l">No selection</div><div class="pb-s">${esc(f.reason)}</div></div>`;
   return `<div class="det">${primBlock}

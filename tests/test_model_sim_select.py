@@ -188,3 +188,16 @@ def test_all_fifteen_lines_present_and_labelled_by_subject():
     assert describe("match_over", 1.0, "Chelsea", "Manchester United") == "Total match goals Over 1.0"
     rules = settlement_text("home_over", 1.0, "Chelsea", "Manchester United")
     assert rules == ["Chelsea must score 2+ goals to win.", "Exactly 1 goal for a refund (push).", "0 goals to lose."]
+
+
+def test_every_line_records_completed_simulation_count_and_sums_to_one():
+    rng = np.random.default_rng(5)
+    h = rng.poisson(1.3, 10000); a = rng.poisson(1.0, 10000)
+    for s in settle_all(h, a):
+        assert s.n == 10000 and abs(s.p_win + s.p_push + s.p_loss - 1) < 1e-12
+        assert (s.p_push == 0) == (not float(s.line).is_integer()) or s.p_push == 0   # half-goal lines never refund
+    st = {(s.market, s.line): s for s in settle_all(h, a)}
+    assert st[("home_over", 1.0)].p_push == float(np.mean(h == 1))                    # Chelsea exactly 1 = refund
+    assert st[("home_over", 1.0)].p_win == float(np.mean(h >= 2))
+    assert st[("away_over", 1.0)].p_win != st[("home_over", 1.0)].p_win               # team lines are distinct
+    assert st[("match_over", 2.0)].p_push == float(np.mean(h + a == 2))
