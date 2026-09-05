@@ -47,3 +47,9 @@ python scripts/make_bundle.py --restore bundle.html /path/to/dir
 ```
 
 Changing any selection rule requires bumping `POLICY_VERSION`; changing model settings requires bumping `MODEL_VERSION` and re-running the validation/test protocol.
+
+## Verification status of the hosted refresh (2026-09-05)
+
+- Pipeline, tests (47), site build and artifact publish were run and verified from the build session (board run_id 20260905T161803Z is live).
+- Both scheduled tasks exist and are enabled (10:30 and 11:30 UTC). A manual "FORCE" fire of the 10:30 task ended in 26 s without republishing (it evidently took the time-gate branch). A one-off verification task without the gate was fired at 16:31 UTC and was still running 50 minutes later when the build session ended; its result was NOT confirmed. Treat the first unattended 05:30 run (2026-09-06) as the acceptance test: it sends a push notification on completion, and the board's "Refreshed" pill shows the run time. If it does not refresh, the previous board stays live and shows a Stale warning after 30 h.
+- Recommended hardening: move the refresh to GitHub Actions (`.github/workflows/daily.yml`), which removes the LLM from the daily loop.
