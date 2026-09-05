@@ -30,7 +30,11 @@ from .config import ACTIVE_COMPETITIONS, DATA_DIR, EVAL_SPLIT, MODEL, MODEL_VERS
 from .markets import MARKETS, is_integer_line, relevant_goals
 from .model import dixon_coles as dc
 from .model import priors as priors_mod
+from .odds import devig_power, devig_proportional, devig_shin
 from .store import AsOfView, connect, DATASET_PATH
+
+PINNACLE_MIN_COVERAGE = 0.90   # configured rule: >=90% valid paired Pinnacle closing coverage per league-season, else stop
+MARKET_KEY = "match_over:2.5"  # the only line with closing odds in the source
 
 EVAL_DIR = DATA_DIR / "eval"
 
@@ -194,6 +198,48 @@ def summarise(records: list[dict], bootstrap: bool = True) -> dict:
     return out
 
 
+def closing_odds(comp: str, season: str) -> dict[str, dict[str, tuple[float, float]]]:
+    """match_id -> {bookmaker: (over, under)} closing O/U 2.5 odds."""
+    out: dict[str, dict] = defaultdict(dict)
+    with connect(DATASET_PATH, readonly=True) as con:
+        rows = con.execute("""SELECT o.match_id, o.bookmaker, o.side, o.price FROM odds_snapshots o JOIN matches m ON m.match_id=o.match_id
+                              WHERE m.competition=? AND m.season=? AND o.kind='closing' AND o.market='match_over' AND o.line=2.5""", (comp, season)).fetchall()
+    tmp: dict[tuple, dict] = defaultdict(dict)
+    for r in rows:
+        tmp[(r["match_id"], r["bookmaker"])][r["side"]] = r["price"]
+    for (mid, book), d in tmp.items():
+        if "over" in d and "under" in d:
+            out[mid][book] = (d["over"], d["under"])
+    return out
+
+
+def market_baseline(records: list[dict], comp: str, season: str) -> dict:
+    """Pinnacle closing baseline for Over 2.5 on the SAME fixtures the model rated. Enforces the coverage rule."""
+    odds = closing_odds(comp, season)
+    with_result = [r for r in records if r.get("home_goals") is not None]
+    n_matches = len(with_result)
+    cov = {book: sum(1 for r in with_result if book in odds.get(r["match_id"], {})) / max(n_matches, 1) for book in ("Pinnacle", "Max", "Avg")}
+    rep = {"rule": f"Pinnacle closing O/U 2.5 paired coverage >= {PINNACLE_MIN_COVERAGE:.0%} of matches with results; no substitute bookmaker",
+           "coverage_by_source": cov, "n_matches": n_matches, "status": None}
+    if cov["Pinnacle"] < PINNACLE_MIN_COVERAGE:
+        rep["status"] = f"stopped: Pinnacle closing coverage {cov['Pinnacle']:.1%} < {PINNACLE_MIN_COVERAGE:.0%}"
+        return rep
+    rated = [r for r in records if "model" in r and "Pinnacle" in odds.get(r["match_id"], {})]
+    if not rated:
+        rep["status"] = "stopped: no rated matches with odds"; return rep
+    y = np.array([1.0 if (r["home_goals"] + r["away_goals"]) > 2.5 else 0.0 for r in rated])
+    pm = np.array([r["model"][MARKET_KEY]["win"] for r in rated])
+    res = {"n": len(rated), "model": scores(pm, y)}
+    for name, fn in (("proportional", devig_proportional), ("power", devig_power), ("shin", devig_shin)):
+        pb = np.array([fn(list(odds[r["match_id"]]["Pinnacle"]))[0] for r in rated])
+        res[f"pinnacle_{name}"] = scores(pb, y)
+    raw = np.array([1 / odds[r["match_id"]]["Pinnacle"][0] for r in rated])
+    res["pinnacle_raw_overround_mean"] = float(np.mean([1 / o + 1 / u - 1 for o, u in (odds[r["match_id"]]["Pinnacle"] for r in rated)]))
+    res["model_beats_pinnacle_shin_logloss"] = bool(res["model"]["log_loss"] < res["pinnacle_shin"]["log_loss"])
+    rep["status"] = "evaluated"; rep["result"] = res
+    return rep
+
+
 def run(split: str, competitions: list[str] | None = None, hyper: dict | None = None, tag: str = "", draws: int = 500) -> dict:
     EVAL_DIR.mkdir(parents=True, exist_ok=True)
     competitions = competitions or ACTIVE_COMPETITIONS
@@ -211,11 +257,45 @@ def run(split: str, competitions: list[str] | None = None, hyper: dict | None = 
                 r["competition"] = comp; r["season"] = season
             all_records += recs
             report["by_league_season"][f"{comp}:{season}"] = summarise(recs, bootstrap=False)
+            report["by_league_season"][f"{comp}:{season}"]["market_baseline"] = market_baseline(recs, comp, season)
     report["pooled"] = summarise(all_records, bootstrap=True)
     by_comp = defaultdict(list)
     for r in all_records:
         by_comp[r["competition"]].append(r)
     report["by_league"] = {c: summarise(v, bootstrap=False) for c, v in by_comp.items()}
+    # pooled market baseline over league-seasons that passed the coverage rule (same fixtures for model and market)
+    passed = [k for k, v in report["by_league_season"].items() if v.get("market_baseline", {}).get("status") == "evaluated"]
+    stopped = {k: v["market_baseline"]["status"] for k, v in report["by_league_season"].items() if v.get("market_baseline") and v["market_baseline"]["status"] != "evaluated"}
+    pooled_mb = {"rule": f"Pinnacle closing O/U 2.5 paired coverage >= {PINNACLE_MIN_COVERAGE:.0%} per league-season; no substitute bookmaker",
+                 "league_seasons_evaluated": passed, "league_seasons_stopped": stopped}
+    if passed:
+        recs = [r for r in all_records if f"{r['competition']}:{r['season']}" in passed and "model" in r]
+        pooled_rated = []
+        for k in passed:
+            comp, season = k.split(":")
+            od = closing_odds(comp, season)
+            for r in recs:
+                if r["competition"] == comp and r["season"] == season and "Pinnacle" in od.get(r["match_id"], {}):
+                    pooled_rated.append((r, od[r["match_id"]]["Pinnacle"]))
+        y = np.array([1.0 if (r["home_goals"] + r["away_goals"]) > 2.5 else 0.0 for r, _ in pooled_rated])
+        blocks = np.array([r["date"] for r, _ in pooled_rated])
+        pm = np.array([r["model"][MARKET_KEY]["win"] for r, _ in pooled_rated])
+        pooled_mb["n"] = len(pooled_rated)
+        pooled_mb["model"] = {**scores(pm, y), "bootstrap": blocked_bootstrap(pm, y, blocks)}
+        for name, fn in (("proportional", devig_proportional), ("power", devig_power), ("shin", devig_shin)):
+            pb = np.array([fn(list(o))[0] for _, o in pooled_rated])
+            pooled_mb[f"pinnacle_{name}"] = {**scores(pb, y), "bootstrap": blocked_bootstrap(pb, y, blocks)}
+        # paired difference (model - pinnacle shin) with blocked bootstrap
+        pb = np.array([devig_shin(list(o))[0] for _, o in pooled_rated])
+        rng = np.random.default_rng(11); uniq = np.unique(blocks); idx_by = {b: np.where(blocks == b)[0] for b in uniq}; diffs = []
+        for _ in range(400):
+            pick = rng.choice(uniq, size=len(uniq), replace=True); idx = np.concatenate([idx_by[b] for b in pick])
+            diffs.append(scores(pm[idx], y[idx])["log_loss"] - scores(pb[idx], y[idx])["log_loss"])
+        pooled_mb["logloss_diff_model_minus_pinnacle_shin"] = {"point": float(pooled_mb["model"]["log_loss"] - pooled_mb["pinnacle_shin"]["log_loss"]),
+                                                                "ci95": [float(np.percentile(diffs, 2.5)), float(np.percentile(diffs, 97.5))]}
+        pooled_mb["verdict"] = ("model does NOT outperform the Pinnacle closing line" if pooled_mb["logloss_diff_model_minus_pinnacle_shin"]["point"] >= 0
+                                else "model log loss is lower than Pinnacle closing on these fixtures (see CI before reading this as an edge)")
+    report["market_baseline"] = pooled_mb
     name = f"{split}{('_' + tag) if tag else ''}.json"
     (EVAL_DIR / name).write_text(json.dumps(report, indent=1))
     (EVAL_DIR / name.replace(".json", "_records.json")).write_text(json.dumps(all_records))

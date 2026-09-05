@@ -74,7 +74,10 @@ ALIASES: dict[tuple[str, str], str] = {
     ("de", "union-berlin"): "union-berlin", ("de", "st.-pauli"): "st.-pauli", ("de", "st-pauli"): "st.-pauli",
     ("de", "schalke"): "schalke", ("de", "leipzig"): "rb-leipzig", ("de", "werder"): "werder-bremen",
     ("de", "frankfurt"): "eintracht-frankfurt", ("de", "freiburg"): "freiburg", ("de", "augsburg"): "augsburg",
-    ("de", "paderborn"): "paderborn", ("de", "kiel"): "holstein-kiel",
+    ("de", "paderborn"): "paderborn", ("de", "kiel"): "holstein-kiel", ("de", "bochum-1848"): "bochum", ("de", "bochum"): "bochum",
+    ("de", "heidenheim-1846"): "heidenheim", ("de", "heidenheim"): "heidenheim", ("de", "darmstadt-98"): "darmstadt", ("de", "darmstadt"): "darmstadt",
+    ("fr", "as-saint-etienne"): "saint-etienne", ("fr", "saint-etienne"): "saint-etienne", ("fr", "st-etienne"): "saint-etienne",
+    ("fr", "aj-auxerre"): "auxerre", ("fr", "montpellier-hsc"): "montpellier", ("fr", "montpellier"): "montpellier",
     # Spain
     ("es", "atletico-madrid"): "atletico-madrid", ("es", "atletico"): "atletico-madrid",
     ("es", "espanyol-barcelona"): "espanyol", ("es", "espanyol"): "espanyol", ("es", "rcd-espanyol"): "espanyol",
@@ -162,7 +165,19 @@ def canonical_id(country: str, raw_name: str) -> str | None:
     return f"{country}:{slug}"
 
 
+_ACRONYMS = {"az", "psv", "nec", "ii", "psg", "rb", "fc", "sc", "ado", "pec", "afc", "sv", "tsg", "vfb", "vfl", "hsv"}
+_PRETTY = {"en:brighton-and-hove-albion": "Brighton & Hove Albion", "de:bayern-munchen": "Bayern München",
+           "de:borussia-monchengladbach": "Borussia Mönchengladbach", "de:koln": "1. FC Köln", "it:internazionale": "Inter",
+           "es:athletic": "Athletic Club", "es:alaves": "Alavés", "es:malaga": "Málaga", "pt:sporting-portugal": "Sporting CP",
+           "pt:academico-viseu": "Académico de Viseu", "pt:famalicao": "Famalicão", "pt:estrela-amadora": "Estrela da Amadora",
+           "pt:maritimo": "Marítimo", "pt:vitoria-guimaraes": "Vitória Guimarães", "fr:paris-saint-germain": "Paris Saint-Germain",
+           "fr:paris-fc": "Paris FC", "nl:az-alkmaar": "AZ Alkmaar", "en:st.-pauli": "St. Pauli", "de:st.-pauli": "St. Pauli",
+           "es:deportivo-la-coruna": "Deportivo La Coruña", "es:racing-santander": "Racing Santander", "nl:pec-zwolle": "PEC Zwolle",
+           "nl:ado-den-haag": "ADO Den Haag", "de:rb-leipzig": "RB Leipzig", "en:queens-park-rangers": "QPR"}
+
+
 def display_name(canonical: str) -> str:
+    if canonical in _PRETTY:
+        return _PRETTY[canonical]
     slug = canonical.split(":", 1)[1]
-    return " ".join(w.capitalize() if len(w) > 2 else w.upper() if w in {"az", "psv", "nec", "ii"} else w.capitalize()
-                    for w in slug.split("-"))
+    return " ".join(w.upper() if w in _ACRONYMS else w.capitalize() for w in slug.split("-"))

@@ -51,8 +51,8 @@ EVAL_SPLIT = {
 
 # ---- Model hyper-parameters (frozen after validation; see docs/EVALUATION.md) ----
 MODEL = {
-    "xi": 0.0019,             # exponential time decay per day (half-life ~ 365 d); tuned on validation
-    "l2": 2.0,                # L2 penalty = 1/(2*prior_sd^2); 2.0 <=> prior sd 0.5 on attack/defence
+    "xi": 0.002,              # exponential time decay per day; FROZEN from validation grid (see docs/EVALUATION.md)
+    "l2": 4.0,                # L2 penalty = 1/(2*prior_sd^2); 4.0 <=> prior sd 0.35; FROZEN from validation grid
     "l2_promoted_scale": 3.0, # promoted teams: penalty x3 (prior sd ~0.29) toward the promoted prior
     "max_goals": 20,          # score grid 0..20 per team
     "tail_tolerance": 1e-4,   # allowed mass outside grid; else fixture is flagged/PASS

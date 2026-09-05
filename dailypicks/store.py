@@ -50,13 +50,14 @@ CREATE TABLE IF NOT EXISTS odds_snapshots (
 CREATE TABLE IF NOT EXISTS season_validation (
   competition TEXT, season TEXT, n_teams INTEGER, n_matches INTEGER, expected_matches INTEGER,
   n_results INTEGER, status TEXT, notes TEXT, PRIMARY KEY (competition, season));
+CREATE TABLE IF NOT EXISTS odds_coverage (league_season TEXT PRIMARY KEY, report_json TEXT);
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
 """
 
 LEDGER_SCHEMA = """
 CREATE TABLE IF NOT EXISTS predictions (
   prediction_id TEXT PRIMARY KEY, run_id TEXT NOT NULL, match_id TEXT NOT NULL,
-  competition TEXT, kickoff_utc TEXT, predicted_at_utc TEXT NOT NULL, cutoff_utc TEXT NOT NULL,
+  competition TEXT, home TEXT, away TEXT, kickoff_utc TEXT, predicted_at_utc TEXT NOT NULL, cutoff_utc TEXT NOT NULL,
   model_version TEXT NOT NULL, policy_version TEXT NOT NULL, data_commit TEXT,
   sim_seed INTEGER, sim_requested INTEGER, sim_valid INTEGER,
   market TEXT NOT NULL, line REAL NOT NULL, p_win REAL, p_push REAL, p_loss REAL, survival REAL,
@@ -162,7 +163,8 @@ def validate_season(competition: str, season: str, rows: list[dict]) -> dict:
             "expected_matches": expected, "n_results": n_results, "status": status, "notes": "; ".join(notes)}
 
 
-def build_dataset(all_rows: dict[tuple[str, str], list[dict]], archives: list[dict], meta: dict) -> Path:
+def build_dataset(all_rows: dict[tuple[str, str], list[dict]], archives: list[dict], meta: dict,
+                  odds_rows: list[tuple] | None = None, odds_coverage: dict | None = None) -> Path:
     """Write a staging dataset, validate, and atomically replace the active one."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     staging = DATASET_PATH.with_suffix(".sqlite.staging")
@@ -195,6 +197,10 @@ def build_dataset(all_rows: dict[tuple[str, str], list[dict]], archives: list[di
                          v["n_results"], v["status"], v["notes"]))
         for k, val in meta.items():
             con.execute("INSERT OR REPLACE INTO meta VALUES (?,?)", (k, json.dumps(val)))
+        for o in odds_rows or []:
+            con.execute("INSERT OR REPLACE INTO odds_snapshots VALUES (?,?,?,?,?,?,?,?,?)", o)
+        for k, rep in (odds_coverage or {}).items():
+            con.execute("INSERT OR REPLACE INTO odds_coverage VALUES (?,?)", (k, json.dumps(rep)))
         # integrity re-check inside the staging file
         n = con.execute("SELECT COUNT(*) FROM matches").fetchone()[0]
         if n == 0:

@@ -199,8 +199,13 @@ def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, 
                     fx["rated"] = False; fx["reason"] = f"kick-off time disagrees with independent source ({res.get('espn_kickoff_utc')})"
             else:
                 xcheck["mismatch"] += 1
+                other = espn.find_on_other_dates(fx, fx["competition"], fx["date_local"])
+                if other:
+                    res["espn_detail"] = f"independent source lists this fixture at {other} instead"
                 if fx["rated"]:
-                    fx["rated"] = False; fx["reason"] = "not confirmed by independent fixture source"
+                    fx["rated"] = False
+                    fx["reason"] = (f"independent source schedules this fixture at {other}; the primary source date is unconfirmed"
+                                    if other else "not confirmed by independent fixture source")
         checked_any = any(v is not None for v in cache.values())
         xcheck["status"] = "ok" if checked_any and not errors else ("partial" if checked_any else "unavailable")
         xcheck["detail"] = "; ".join(sorted(set(errors)))[:300]
@@ -272,10 +277,10 @@ def record_predictions(board: dict, run_id: str, now: datetime, data_commit: str
                     qualified = 1 if (fx["status"] in ("pick", "qualified_capped") and (is_primary or any(
                         s["market"] == mk["market"] and s["line"] == mk["line"] for s in fx.get("secondary", [])))) else 0
                     pid = f"{run_id}:{fx['match_id']}:{mk['market']}:{mk['line']}"
-                    con.execute("""INSERT OR IGNORE INTO predictions (prediction_id, run_id, match_id, competition, kickoff_utc, predicted_at_utc, cutoff_utc,
+                    con.execute("""INSERT OR IGNORE INTO predictions (prediction_id, run_id, match_id, competition, home, away, kickoff_utc, predicted_at_utc, cutoff_utc,
                         model_version, policy_version, data_commit, sim_seed, sim_requested, sim_valid, market, line, p_win, p_push, p_loss, survival,
-                        qualified, is_primary, reason, odds_json, board_kind) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                                (pid, run_id, fx["match_id"], fx["competition"], fx["kickoff_utc"], iso(now), iso(now), MODEL_VERSION, POLICY_VERSION,
+                        qualified, is_primary, reason, odds_json, board_kind) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                                (pid, run_id, fx["match_id"], fx["competition"], fx["home"], fx["away"], fx["kickoff_utc"], iso(now), iso(now), MODEL_VERSION, POLICY_VERSION,
                                  data_commit, fx["sim"]["seed"], fx["sim"]["requested"], fx["sim"]["valid"], mk["market"], mk["line"],
                                  mk["p_win"], mk["p_push"], mk["p_loss"], mk["survival"], qualified, int(is_primary),
                                  fx["status"] + (": " + fx["reason"] if fx.get("reason") else ""), None, kind))
@@ -292,7 +297,11 @@ def results_report() -> dict:
            "picks": {"win": 0, "push": 0, "loss": 0, "n": 0}, "by_market": {}, "by_league": {}, "predicted_vs_observed": None,
            "all_rated_markets": {"n": 0, "predicted_survival_mean": None, "observed_survival_rate": None}, "recent": []}
     with connect(LEDGER_PATH, readonly=True) as con:
-        rows = con.execute("SELECT * FROM predictions WHERE status='settled' AND board_kind='final'").fetchall() if LEDGER_PATH.exists() else []
+        # the official pre-match record per fixture+market is the LAST final-board prediction written before kick-off
+        rows = con.execute("""SELECT p.* FROM predictions p JOIN (
+                                SELECT match_id, market, line, MAX(predicted_at_utc) AS last FROM predictions WHERE board_kind='final' GROUP BY match_id, market, line
+                              ) l ON l.match_id=p.match_id AND l.market=p.market AND l.line=p.line AND l.last=p.predicted_at_utc
+                              WHERE p.status='settled' AND p.board_kind='final'""").fetchall() if LEDGER_PATH.exists() else []
     picks = [r for r in rows if r["is_primary"] and r["qualified"] and r["reason"].startswith("pick")]
     surv_pred, surv_obs = [], []
     for r in picks:
@@ -308,8 +317,11 @@ def results_report() -> dict:
         obs = [1.0 if (r["settlement"] == "win" or (r["settlement"] == "push" and float(r["line"]).is_integer())) else 0.0 for r in rows]
         out["all_rated_markets"] = {"n": len(rows), "predicted_survival_mean": float(np.mean(ps)), "observed_survival_rate": float(np.mean(obs))}
     with connect(LEDGER_PATH, readonly=True) as con:
-        rec = con.execute("""SELECT match_id, competition, kickoff_utc, market, line, survival, p_win, p_push, settlement, settled_home, settled_away, run_id
-                             FROM predictions WHERE is_primary=1 AND board_kind='final' AND reason LIKE 'pick%' ORDER BY kickoff_utc DESC LIMIT 200""").fetchall()
+        rec = con.execute("""SELECT p.match_id, p.competition, p.home, p.away, p.kickoff_utc, p.market, p.line, p.survival, p.p_win, p.p_push, p.settlement,
+                                    p.settled_home, p.settled_away, p.run_id, p.predicted_at_utc
+                             FROM predictions p JOIN (SELECT match_id, MAX(predicted_at_utc) AS last FROM predictions WHERE board_kind='final' AND is_primary=1 GROUP BY match_id) l
+                               ON l.match_id=p.match_id AND l.last=p.predicted_at_utc
+                             WHERE p.is_primary=1 AND p.board_kind='final' AND p.reason LIKE 'pick%' ORDER BY p.kickoff_utc DESC LIMIT 200""").fetchall()
     out["recent"] = [dict(r) for r in rec]
     return out
 
@@ -440,7 +452,7 @@ def _evaluation_summary() -> dict | None:
             "by_league": {c: {k: {"log_loss": v["model"]["log_loss"], "brier": v["model"]["brier"], "n": v["model"]["n"],
                                   "reference_log_loss": v.get("reference_league_rate", {}).get("log_loss")}
                               for k, v in s["markets"].items()} for c, s in rep.get("by_league", {}).items()},
-            "market_baseline": {"status": "unavailable", "reason": "No timestamped closing odds source reachable (football-data.co.uk blocked in the execution environment). No betting edge is claimed."}}
+            "market_baseline": rep.get("market_baseline") or {"status": "unavailable", "reason": "No timestamped closing odds available. No betting edge is claimed."}}
 
 
 if __name__ == "__main__":

@@ -31,6 +31,8 @@ _EXTRA = {
     ("nl", "ajax-amsterdam"): "ajax", ("nl", "nec-nijmegen"): "nec", ("pt", "vitoria-guimaraes"): "vitoria-guimaraes",
     ("pt", "sporting-cp"): "sporting-portugal", ("pt", "sporting-lisbon"): "sporting-portugal",
     ("es", "atletico-madrid"): "atletico-madrid", ("fr", "paris-saint-germain"): "paris-saint-germain",
+    ("pt", "estrela"): "estrela-amadora", ("pt", "c.d.-nacional"): "nacional", ("pt", "vitoria-guimaraes"): "vitoria-guimaraes",
+    ("de", "hamburg-sv"): "hamburger", ("de", "fc-cologne"): "koln", ("de", "cologne"): "koln", ("es", "deportivo"): "deportivo-la-coruna",
 }
 
 
@@ -72,7 +74,7 @@ def events(competition: str, data: dict) -> list[dict]:
         out.append({
             "home_raw": home["displayName"], "away_raw": away["displayName"],
             "home_id": _cid(country, home["displayName"]), "away_id": _cid(country, away["displayName"]),
-            "kickoff_utc": ev["date"].replace("Z", "+00:00"),
+            "kickoff_utc": ev["date"].replace("Z", "+00:00") if ev.get("date") else None,
             "state": status.get("state"), "detail": status.get("description"), "completed": status.get("completed"),
         })
     return out
@@ -90,7 +92,7 @@ def cross_check(fixture: dict, evs: list[dict], tolerance_minutes: int = 20) -> 
     for e in evs:
         if e["home_id"] == fixture["home_id"] and e["away_id"] == fixture["away_id"]:
             res = {"verified": True, "espn_state": e["state"], "espn_detail": e["detail"], "kickoff_match": None}
-            if fixture.get("kickoff_utc"):
+            if fixture.get("kickoff_utc") and e["kickoff_utc"]:
                 dt = abs(datetime.fromisoformat(fixture["kickoff_utc"]) - datetime.fromisoformat(e["kickoff_utc"]))
                 res["kickoff_match"] = dt <= timedelta(minutes=tolerance_minutes)
                 res["espn_kickoff_utc"] = e["kickoff_utc"]
@@ -98,3 +100,19 @@ def cross_check(fixture: dict, evs: list[dict], tolerance_minutes: int = 20) -> 
                 res["espn_kickoff_utc"] = e["kickoff_utc"]
             return res
     return {"verified": False, "espn_state": None, "espn_detail": "fixture not found on ESPN for this date"}
+
+
+def find_on_other_dates(fixture: dict, competition: str, date: str, window_days: int = 3) -> str | None:
+    """If the pairing exists on a neighbouring date in the cache, return that ESPN kickoff (helps explain mismatches)."""
+    base = datetime.fromisoformat(date)
+    for delta in range(-window_days, window_days + 1):
+        if delta == 0:
+            continue
+        d = (base + timedelta(days=delta)).date().isoformat()
+        data = load_cached(competition, d, max_age_hours=1e9)
+        if not data:
+            continue
+        for e in events(competition, data):
+            if e["home_id"] == fixture["home_id"] and e["away_id"] == fixture["away_id"]:
+                return e["kickoff_utc"]
+    return None

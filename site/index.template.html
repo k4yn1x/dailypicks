@@ -1,0 +1,332 @@
+<title>DailyPicks Goal Board</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F5F7F3; --surface:#FFFFFF; --surface-2:#EDF1EA; --line:#D7DDD3; --ink:#1A1F1B; --ink-2:#4F5852; --ink-3:#7C857E;
+  --accent:#1E7A4C; --accent-ink:#FFFFFF; --accent-soft:#DDEFE3;
+  --good:#1E7A4C; --warn:#A8700B; --warn-soft:#F7EBCF; --bad:#B03A3A; --bad-soft:#F6DEDE; --muted-soft:#E6E9E3;
+  --bar-win:#1E7A4C; --bar-push:#C9A227; --bar-loss:#D9DDD6;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif; --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#111412; --surface:#1A1F1B; --surface-2:#222824; --line:#2F3731; --ink:#E7EBE5; --ink-2:#AEB7B0; --ink-3:#7E8880;
+  --accent:#3FB77A; --accent-ink:#0E1410; --accent-soft:#1C3527;
+  --good:#3FB77A; --warn:#D9A43A; --warn-soft:#3A2F14; --bad:#E06A6A; --bad-soft:#3F1F1F; --muted-soft:#262C28;
+  --bar-win:#3FB77A; --bar-push:#D9A43A; --bar-loss:#343B36;
+}}
+:root[data-theme="dark"]{
+  --bg:#111412; --surface:#1A1F1B; --surface-2:#222824; --line:#2F3731; --ink:#E7EBE5; --ink-2:#AEB7B0; --ink-3:#7E8880;
+  --accent:#3FB77A; --accent-ink:#0E1410; --accent-soft:#1C3527;
+  --good:#3FB77A; --warn:#D9A43A; --warn-soft:#3A2F14; --bad:#E06A6A; --bad-soft:#3F1F1F; --muted-soft:#262C28;
+  --bar-win:#3FB77A; --bar-push:#D9A43A; --bar-loss:#343B36;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:960px;margin:0 auto;padding:0 12px 48px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:960px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.01em;line-height:1;text-transform:uppercase}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase;margin-top:3px}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;background:var(--muted-soft);color:var(--ink-2);white-space:nowrap}
+.pill.ok{background:var(--accent-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+nav.tabs{display:flex;gap:2px;margin:12px 0 0;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{padding:10px 12px;font-family:var(--display);font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-3);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.days{display:flex;gap:8px;overflow-x:auto;padding:14px 0 4px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;padding:6px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);text-align:left;min-width:86px}
+.day b{display:block;font-family:var(--display);font-size:20px;font-weight:600;line-height:1;text-transform:uppercase}
+.day span{display:block;font-size:11px;color:var(--ink-3);margin-top:3px}
+.day[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.summary{display:grid;grid-template-columns:repeat(3,auto) 1fr;gap:0 18px;align-items:end;padding:12px 0 6px}
+.summary .n{font-family:var(--display);font-size:40px;font-weight:700;line-height:.9}
+.summary .l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.summary .note{grid-column:1/-1;font-size:13px;color:var(--ink-2);margin-top:6px;max-width:65ch}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0 12px;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{padding:5px 10px;font-size:13px;font-weight:500;color:var(--ink-2)} .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip{padding:4px 9px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--ink-2);background:var(--surface)}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.list{display:flex;flex-direction:column;gap:8px;padding-top:12px}
+.fx{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.fx summary{list-style:none;display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 12px;cursor:pointer;align-items:center}
+.fx summary::-webkit-details-marker{display:none}
+.ko{font-family:var(--display);font-size:22px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.ko small{display:block;font-family:var(--body);font-size:10px;color:var(--ink-3);letter-spacing:.05em;text-transform:uppercase;margin-top:3px;font-weight:500}
+.teams{min-width:0;text-align:left}
+.teams .t{font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.teams .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px;font-size:11px;color:var(--ink-3)}
+.tag{padding:1px 6px;border-radius:3px;background:var(--muted-soft);color:var(--ink-2);font-weight:500;letter-spacing:.02em}
+.tag.wl{background:var(--accent-soft);color:var(--accent)}
+.tag.prov{background:var(--warn-soft);color:var(--warn)}
+.tag.rank{background:var(--ink);color:var(--bg);font-family:var(--mono)}
+.pick{text-align:right;min-width:112px}
+.pick .mk{font-size:12px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.pick .sv{font-family:var(--display);font-size:30px;font-weight:700;line-height:1;margin-top:2px;font-variant-numeric:tabular-nums}
+.pick .sv em{font-style:normal;font-family:var(--body);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-left:3px}
+.bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--bar-loss);margin-top:6px}
+.bar b{display:block;height:100%} .bar .w{background:var(--bar-win)} .bar .p{background:var(--bar-push)}
+.wpl{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:3px;white-space:nowrap}
+.state{font-size:12px;color:var(--ink-2);max-width:26ch;line-height:1.3}
+.state b{display:block;font-family:var(--display);font-size:18px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-3)}
+.fx.pass .state b,.fx.unrated .state b{color:var(--ink-3)} .fx.capped .state b{color:var(--warn)}
+.fx.started summary{opacity:.6}
+.det{border-top:1px solid var(--line);padding:10px 12px 12px;background:var(--surface-2);font-size:13px}
+.det table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.det th,.det td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;white-space:nowrap}
+.det th{font-family:var(--body);font-weight:500;color:var(--ink-3);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.det td:first-child,.det th:first-child{text-align:left;font-family:var(--body);white-space:normal}
+.det tr.q td{color:var(--good);font-weight:500} .det tr.prim td:first-child::after{content:" · primary";color:var(--ink-3);font-weight:400}
+.tbl-wrap{overflow-x:auto}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:8px 0 0;font-size:12px}
+.kv dt{color:var(--ink-3)} .kv dd{margin:0;font-family:var(--mono)}
+h2{font-family:var(--display);font-size:26px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;margin:24px 0 8px;text-wrap:balance}
+h3{font-size:14px;font-weight:600;margin:18px 0 6px}
+p{max-width:65ch} .muted{color:var(--ink-2)} .small{font-size:12px}
+.callout{border-left:3px solid var(--accent);padding:8px 12px;background:var(--surface);border-radius:0 var(--r) var(--r) 0;margin:12px 0;max-width:70ch}
+.callout.warn{border-left-color:var(--warn)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px}
+.tile .n{font-family:var(--display);font-size:28px;font-weight:700;line-height:1} .tile .l{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+table.data{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+table.data th,table.data td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.data th{font-weight:500;color:var(--ink-3);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+table.data td.num,table.data th.num{text-align:right;font-family:var(--mono)}
+.st{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:500}
+.st.supported{background:var(--accent-soft);color:var(--good)} .st.historical_only{background:var(--warn-soft);color:var(--warn)} .st.awaiting_coverage{background:var(--muted-soft);color:var(--ink-2)}
+.st.win{background:var(--accent-soft);color:var(--good)} .st.push{background:var(--warn-soft);color:var(--warn)} .st.loss{background:var(--bad-soft);color:var(--bad)} .st.open{background:var(--muted-soft);color:var(--ink-2)}
+details.sec{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin:8px 0}
+details.sec summary{padding:10px 12px;font-weight:600;cursor:pointer} details.sec>div{padding:0 12px 12px}
+.empty{padding:28px 12px;text-align:center;color:var(--ink-2)}
+footer{margin-top:32px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:12px;max-width:70ch}
+@media (max-width:480px){
+  .fx summary{grid-template-columns:44px 1fr auto;gap:8px;padding:9px 10px}
+  .ko{font-size:19px} .pick{min-width:96px} .pick .sv{font-size:26px} .summary .n{font-size:32px}
+  .summary{grid-template-columns:repeat(3,auto);gap:0 14px}
+  nav.tabs button{font-size:16px;padding:9px 10px}
+}
+@media (prefers-reduced-motion:no-preference){ .fx summary{transition:background .15s} .fx summary:hover{background:var(--surface-2)} }
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand">DailyPicks<small>Goal-market research board</small></div>
+  <div class="status" id="status"></div>
+</div></header>
+
+<div class="wrap">
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="board" aria-selected="true">Board</button>
+    <button role="tab" data-tab="results" aria-selected="false">Results</button>
+    <button role="tab" data-tab="coverage" aria-selected="false">Coverage</button>
+    <button role="tab" data-tab="method" aria-selected="false">Methodology</button>
+  </nav>
+  <section id="board" role="tabpanel"></section>
+  <section id="results" role="tabpanel" hidden></section>
+  <section id="coverage" role="tabpanel" hidden></section>
+  <section id="method" role="tabpanel" hidden></section>
+  <footer id="foot"></footer>
+</div>
+
+<script id="dp-data" type="application/json">/*__DATA__*/</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('dp-data').textContent);
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = x => (x*100).toFixed(1)+'%';
+const pct0 = x => Math.round(x*100)+'%';
+const fmtDT = iso => iso ? new Date(iso).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:false}) : '—';
+const fmtT = iso => iso ? new Date(iso).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',hour12:false}) : '—';
+const now = new Date();
+const genAt = new Date(D.generated_at_utc);
+const ageH = (now-genAt)/36e5;
+const stale = ageH > 30;
+const state = {tab:'board', day: (D.days.find(d=>d.is_today)||D.days[0]||{}).date, view:'picks', comps:new Set(), wl:false};
+const COMP = Object.fromEntries(D.coverage.competitions.map(c=>[c.code,c]));
+const dayLabel = d => { const dt=new Date(d+'T12:00:00'); return dt.toLocaleDateString(undefined,{weekday:'short'}) + '|' + dt.toLocaleDateString(undefined,{day:'numeric',month:'short'}); };
+
+// ---------- status pill
+function renderStatus(){
+  const xc = D.cross_check||{};
+  let cls='ok', txt='Refreshed '+fmtDT(D.generated_at_utc);
+  if(stale){cls='warn'; txt='Stale — last refresh '+fmtDT(D.generated_at_utc)+' ('+Math.round(ageH)+'h ago)';}
+  $('#status').innerHTML = `<span class="pill ${cls}"><i></i>${esc(txt)}</span>` +
+    `<span class="pill ${xc.status==='ok'?'ok':xc.status==='partial'?'warn':'bad'}" title="${esc(xc.detail||'')}">Fixture cross-check: ${esc(xc.status)}${xc.checked?` (${xc.verified}/${xc.checked} verified)`:''}</span>`;
+}
+
+// ---------- board
+function fixtureCard(f, day){
+  const started = f.kickoff_utc && new Date(f.kickoff_utc) <= now;
+  const status = started && f.status!=='unrated' ? 'started' : f.status;
+  const p = f.primary;
+  const cls = {pick:'is-pick',qualified_capped:'capped',pass:'pass',unrated:'unrated',started:'started'}[status]||'';
+  let right='';
+  if(p && status==='pick'){
+    right = `<div class="pick"><div class="mk">${esc(p.label)}</div>
+      <div class="sv">${pct(p.survival)}<em>survive</em></div>
+      <div class="bar"><b class="w" style="width:${p.p_win*100}%"></b><b class="p" style="width:${p.p_push*100}%"></b></div>
+      <div class="wpl">W ${pct0(p.p_win)} · P ${pct0(p.p_push)} · L ${pct0(p.p_loss)}</div></div>`;
+  } else if(status==='started'){
+    right = `<div class="state"><b>Started</b>${p?esc(p.label)+' was the pre-match line':'no recommendation'}</div>`;
+  } else if(status==='qualified_capped'){
+    right = `<div class="state"><b>Beyond cap</b>${esc(p.label)} qualified (${pct(p.survival)}) — omitted by the 20-pick cap, rank ${f.rank}</div>`;
+  } else if(status==='pass'){
+    right = `<div class="state"><b>Pass</b>${esc(f.reason)}</div>`;
+  } else {
+    right = `<div class="state"><b>Unrated</b>${esc(f.reason)}</div>`;
+  }
+  const tags = [];
+  if(status==='pick') tags.push(`<span class="tag rank">#${f.rank}</span>`);
+  tags.push(`<span class="tag">${esc(COMP[f.competition]?.name||f.competition)}</span>`);
+  if(f.watchlist) tags.push(`<span class="tag wl">Ticket team</span>`);
+  if(day.provisional && f.markets) tags.push(`<span class="tag prov">Provisional</span>`);
+  if(f.verification && f.verification.verified===false) tags.push(`<span class="tag">Unconfirmed</span>`);
+  return `<details class="fx ${cls}"><summary>
+    <div class="ko">${f.kickoff_utc?fmtT(f.kickoff_utc):'TBD'}<small>${f.kickoff_utc?'kick-off':'no time'}</small></div>
+    <div class="teams"><div class="t">${esc(f.home)}</div><div class="t">${esc(f.away)}</div><div class="meta">${tags.join('')}</div></div>
+    ${right}</summary>${details(f)}</details>`;
+}
+function details(f){
+  if(!f.markets) return `<div class="det"><p class="muted small">${esc(f.reason||'No model output for this fixture.')}</p>${verif(f)}</div>`;
+  const prim = f.primary ? f.primary.market+':'+f.primary.line : '';
+  const sec = new Set((f.secondary||[]).map(s=>s.market+':'+s.line));
+  const rows = f.markets.map(m=>{ const k=m.market+':'+m.line; const q = k===prim||sec.has(k);
+    return `<tr class="${q?'q':''} ${k===prim?'prim':''}"><td>${esc(m.label.replace(' goals','').replace('Match ',''))}</td><td>${pct(m.p_win)}</td><td>${pct(m.p_push)}</td><td>${pct(m.p_loss)}</td><td>${pct(m.survival)}</td><td>±${(m.mc_se*100).toFixed(2)}</td></tr>`;}).join('');
+  const s=f.sim, g=f.predicted_goals;
+  return `<div class="det">
+    <div class="tbl-wrap"><table><thead><tr><th>Market</th><th>Win</th><th>Push</th><th>Loss</th><th>Survival</th><th>MC ±</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <dl class="kv">
+      <dt>Predicted goals</dt><dd>${esc(f.home)} ${g.home.toFixed(2)} · ${esc(f.away)} ${g.away.toFixed(2)} (Dixon–Coles ρ ${g.rho})</dd>
+      <dt>Simulations</dt><dd>${s.valid.toLocaleString()} valid of ${s.requested.toLocaleString()} required · ${s.drawn.toLocaleString()} parameter draws · ${s.invalid_tail+s.invalid_negative+s.invalid_nonfinite} discarded (tail ${s.invalid_tail}, invalid τ ${s.invalid_negative})</dd>
+      <dt>Seed</dt><dd>${s.seed}</dd>
+      <dt>Sim mean total</dt><dd>${s.diagnostics.sim_mean_total.toFixed(2)} goals (sd ${s.diagnostics.sim_sd_total.toFixed(2)}), P(0–0) ${pct(s.diagnostics.sim_p_0_0)}</dd>
+      <dt>Rule check</dt><dd>${esc(f.reason||'')}</dd>
+      ${f.promoted_prior_applied&&f.promoted_prior_applied.length?`<dt>Promoted prior</dt><dd>applied to ${f.promoted_prior_applied.length} team(s)</dd>`:''}
+    </dl>${verif(f)}</div>`;
+}
+function verif(f){
+  const v=f.verification; if(!v) return '';
+  if(v.verified===true) return `<p class="small muted">Cross-checked against ESPN: ${esc(v.espn_detail||'scheduled')}${v.kickoff_match===false?' — kick-off time differs':''}.</p>`;
+  if(v.verified===false) return `<p class="small muted">Not found on the independent fixture source for this date.</p>`;
+  return `<p class="small muted">Independent cross-check unavailable for this run.</p>`;
+}
+function renderBoard(){
+  const el=$('#board');
+  if(!D.days.length){ el.innerHTML='<div class="empty">No supported fixtures in the next week.</div>'; return; }
+  const day = D.days.find(d=>d.date===state.day)||D.days[0]; state.day=day.date;
+  const comps=[...new Set(day.fixtures.map(f=>f.competition))];
+  let fx = day.fixtures.filter(f=>!state.comps.size||state.comps.has(f.competition)).filter(f=>!state.wl||f.watchlist);
+  if(state.view==='picks') fx = fx.filter(f=>f.status==='pick');
+  fx.sort((a,b)=> state.view==='picks' ? (a.rank-b.rank) : ((a.kickoff_utc||'9')<(b.kickoff_utc||'9')?-1:1));
+  const dl = dayLabel(day.date).split('|');
+  el.innerHTML = `
+    <div class="days">${D.days.map(d=>{const l=dayLabel(d.date).split('|');return `<button class="day" data-day="${d.date}" aria-selected="${d.date===state.day}"><b>${d.is_today?'Today':l[0]}</b><span>${l[1]} · ${d.n_picks} pick${d.n_picks===1?'':'s'}</span></button>`}).join('')}</div>
+    <div class="summary">
+      <div><div class="n">${day.n_picks}</div><div class="l">Picks</div></div>
+      <div><div class="n">${day.n_rated}</div><div class="l">Rated</div></div>
+      <div><div class="n">${day.n_fixtures}</div><div class="l">Fixtures</div></div>
+      <div class="note">${day.provisional?'<b>Provisional</b> — this day is re-run each morning until its own prediction cutoff. ':''}${esc(day.shortfall_note||(day.n_qualified_capped?day.n_qualified_capped+' more fixtures qualified but were omitted by the 20-pick cap.':''))}
+      ${day.n_picks?'Each pick is one selection at ≥80% simulated survival; pushes count for whole-goal lines. This is not an accumulator probability.':''}</div>
+    </div>
+    <div class="filters">
+      <div class="seg"><button data-view="picks" aria-pressed="${state.view==='picks'}">Picks only</button><button data-view="all" aria-pressed="${state.view==='all'}">All fixtures</button></div>
+      <button class="chip" data-wl aria-pressed="${state.wl}">Ticket teams</button>
+      ${comps.map(c=>`<button class="chip" data-comp="${c}" aria-pressed="${state.comps.has(c)}">${esc(COMP[c]?.name||c)}</button>`).join('')}
+    </div>
+    <div class="list">${fx.length?fx.map(f=>fixtureCard(f,day)).join(''):`<div class="empty">${state.view==='picks'?'No qualifying picks for this selection.':'No fixtures match the filters.'}</div>`}</div>`;
+  el.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{state.day=b.dataset.day;renderBoard();});
+  el.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;renderBoard();});
+  el.querySelectorAll('[data-comp]').forEach(b=>b.onclick=()=>{const c=b.dataset.comp; state.comps.has(c)?state.comps.delete(c):state.comps.add(c); renderBoard();});
+  $('[data-wl]',el).onclick=()=>{state.wl=!state.wl;renderBoard();};
+}
+
+// ---------- results
+function renderResults(){
+  const r=D.results, ev=D.evaluation;
+  const rec = r.recent||[];
+  const settled = rec.filter(x=>x.settlement);
+  let html = `<h2>Prospective record</h2>
+    <p class="muted">Paper record of same-day primary picks recorded before kick-off, settled from final scores. No bookmaker prices were recorded, so no ROI or closing-line comparison is reported.</p>
+    <div class="grid">
+      <div class="tile"><div class="n">${r.picks.n}</div><div class="l">Settled picks</div></div>
+      <div class="tile"><div class="n">${r.picks.win}</div><div class="l">Wins</div></div>
+      <div class="tile"><div class="n">${r.picks.push}</div><div class="l">Pushes</div></div>
+      <div class="tile"><div class="n">${r.picks.loss}</div><div class="l">Losses</div></div>
+      ${r.predicted_vs_observed?`<div class="tile"><div class="n">${pct(r.predicted_vs_observed.observed_survival_rate)}</div><div class="l">Observed survival</div></div><div class="tile"><div class="n">${pct(r.predicted_vs_observed.predicted_survival_mean)}</div><div class="l">Predicted survival</div></div>`:''}
+    </div>`;
+  if(!r.picks.n) html += `<div class="callout">No picks have settled yet — the board went live on ${esc(D.today)}. Results appear here after the first matches complete and the next refresh runs.</div>`;
+  if(r.all_rated_markets && r.all_rated_markets.n) html += `<p class="small muted">All rated markets (${r.all_rated_markets.n} prediction rows, including non-picks): predicted survival ${pct(r.all_rated_markets.predicted_survival_mean)} vs observed ${pct(r.all_rated_markets.observed_survival_rate)}.</p>`;
+  const bm = Object.entries(r.by_market||{});
+  if(bm.length) html += `<h3>By market</h3><div class="tbl-wrap"><table class="data"><tr><th>Market</th><th class="num">W</th><th class="num">P</th><th class="num">L</th><th class="num">n</th></tr>${bm.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="num">${v.win}</td><td class="num">${v.push}</td><td class="num">${v.loss}</td><td class="num">${v.n}</td></tr>`).join('')}</table></div>`;
+  const bl = Object.entries(r.by_league||{});
+  if(bl.length) html += `<h3>By league</h3><div class="tbl-wrap"><table class="data"><tr><th>League</th><th class="num">W</th><th class="num">P</th><th class="num">L</th><th class="num">n</th></tr>${bl.map(([k,v])=>`<tr><td>${esc(COMP[k]?.name||k)}</td><td class="num">${v.win}</td><td class="num">${v.push}</td><td class="num">${v.loss}</td><td class="num">${v.n}</td></tr>`).join('')}</table></div>`;
+  if(rec.length) html += `<h3>Recorded primary picks (latest 200)</h3><p class="small muted">Written before kick-off; the last same-day record per fixture is the one that counts.</p><div class="tbl-wrap"><table class="data picks"><tr><th>Kick-off</th><th>Fixture</th><th>Line</th><th>Result</th></tr>${rec.map(x=>`<tr><td class="small">${fmtDT(x.kickoff_utc)}</td><td>${esc(x.home)} v ${esc(x.away)}<br><span class="small muted">${esc(COMP[x.competition]?.name||x.competition)}</span></td><td>${esc(x.market.replace('match_over','Over').replace('home_over',esc(x.home)+' Over').replace('away_over',esc(x.away)+' Over'))} ${x.line}<br><span class="small muted">${pct(x.survival)} survive</span></td><td>${x.settled_home!=null?`<b>${x.settled_home}:${x.settled_away}</b><br>`:''}<span class="st ${x.settlement||'open'}">${x.settlement||'open'}</span></td></tr>`).join('')}</table></div>`;
+  html += `<h2>Backtest (chronological walk-forward)</h2>`;
+  if(ev){
+    html += `<p class="muted">Untouched test seasons ${ev.seasons.join(', ')}: ${ev.n_rated.toLocaleString()} matches rated of ${ev.n_matches.toLocaleString()} (exclusions: ${esc(JSON.stringify(ev.exclusions))}). Model settings were frozen on the validation seasons before this run. Reference = league-rate Poisson with the same decay (no team strengths).</p>
+    ${marketBaseline(ev.market_baseline)}
+    <div class="tbl-wrap"><table class="data"><tr><th>Market · event</th><th class="num">n</th><th class="num">Base rate</th><th class="num">Log loss</th><th class="num">95% CI</th><th class="num">Ref. log loss</th><th class="num">Brier</th><th class="num">Cal. slope</th><th class="num">Cal. intercept</th></tr>
+    ${Object.entries(ev.markets).map(([k,v])=>`<tr><td>${esc(k.replace(/_/g,' '))}</td><td class="num">${v.n}</td><td class="num">${pct(v.base_rate)}</td><td class="num">${v.log_loss.toFixed(4)}</td><td class="num">${v.ci?v.ci.log_loss_ci95.map(x=>x.toFixed(4)).join('–'):'—'}</td><td class="num">${v.reference_league_rate?v.reference_league_rate.log_loss.toFixed(4):'—'}</td><td class="num">${v.brier.toFixed(4)}</td><td class="num">${v.calibration.slope.toFixed(2)}</td><td class="num">${v.calibration.intercept.toFixed(2)}</td></tr>`).join('')}</table></div>
+    <details class="sec"><summary>Calibration curves (10 bins)</summary><div>${Object.entries(ev.markets).map(([k,v])=>`<h3>${esc(k.replace(/_/g,' '))}</h3><div class="tbl-wrap"><table class="data"><tr><th>Bin</th><th class="num">n</th><th class="num">Mean predicted</th><th class="num">Observed</th></tr>${v.calibration.curve.map(c=>`<tr><td>${c.bin.map(x=>x.toFixed(1)).join('–')}</td><td class="num">${c.n}</td><td class="num">${pct(c.mean_pred)}</td><td class="num">${pct(c.obs_rate)}</td></tr>`).join('')}</table></div>`).join('')}</div></details>
+    <details class="sec"><summary>By league</summary><div>${Object.entries(ev.by_league).map(([c,m])=>`<h3>${esc(COMP[c]?.name||c)}</h3><div class="tbl-wrap"><table class="data"><tr><th>Market · event</th><th class="num">n</th><th class="num">Log loss</th><th class="num">Ref.</th><th class="num">Brier</th></tr>${Object.entries(m).map(([k,v])=>`<tr><td>${esc(k.replace(/_/g,' '))}</td><td class="num">${v.n}</td><td class="num">${v.log_loss.toFixed(4)}</td><td class="num">${v.reference_log_loss?v.reference_log_loss.toFixed(4):'—'}</td><td class="num">${v.brier.toFixed(4)}</td></tr>`).join('')}</table></div>`).join('')}</div></details>`;
+  } else html += `<div class="callout warn">The frozen test-season evaluation has not been published yet.</div>`;
+  $('#results').innerHTML=html;
+}
+
+function marketBaseline(mb){
+  if(!mb || !mb.league_seasons_evaluated) return `<div class="callout warn"><b>Market baseline: unavailable.</b> ${esc((mb&&mb.reason)||'No closing odds available.')} No betting edge is claimed.</div>`;
+  const d=mb.logloss_diff_model_minus_pinnacle_shin;
+  const rows=[['Model (Dixon–Coles, posterior-predictive)',mb.model],['Pinnacle closing — proportional de-vig',mb.pinnacle_proportional],['Pinnacle closing — power de-vig',mb.pinnacle_power],['Pinnacle closing — Shin de-vig',mb.pinnacle_shin]];
+  const stopped=Object.entries(mb.league_seasons_stopped||{});
+  return `<h3>Against the closing market — Over 2.5 only</h3>
+  <div class="callout warn"><b>${esc(mb.verdict)}.</b> Log-loss difference model − Pinnacle (Shin): ${d.point.toFixed(4)} (95% blocked-bootstrap CI ${d.ci95.map(x=>x.toFixed(4)).join(' to ')}), n = ${mb.n.toLocaleString()} matches. A positive difference means the market was sharper. This board is a probability research tool; it does not claim a betting edge.</div>
+  <p class="small muted">Rule (fixed before evaluation): ${esc(mb.rule)}. Evaluated: ${mb.league_seasons_evaluated.map(x=>esc(x)).join(', ')}. ${stopped.length?`Stopped (rule not met, no substitute used): ${stopped.map(([k,v])=>esc(k+' — '+v.replace('stopped: ',''))).join('; ')}.`:''}</p>
+  <div class="tbl-wrap"><table class="data"><tr><th>Forecaster</th><th class="num">Log loss</th><th class="num">95% CI</th><th class="num">Brier</th><th class="num">n</th></tr>${rows.map(([k,v])=>`<tr><td>${k}</td><td class="num">${v.log_loss.toFixed(4)}</td><td class="num">${v.bootstrap.log_loss_ci95.map(x=>x.toFixed(4)).join('–')}</td><td class="num">${v.brier.toFixed(4)}</td><td class="num">${v.n}</td></tr>`).join('')}</table></div>`;
+}
+
+// ---------- coverage
+function renderCoverage(){
+  const c=D.coverage, w=c.watchlist;
+  let html = `<h2>Competitions</h2><div class="tbl-wrap"><table class="data"><tr><th>League</th><th>Seasons</th><th>Current season</th><th class="num">Matches</th><th class="num">Results</th><th>Model fit</th></tr>
+  ${c.competitions.map(x=>{const s=x.current_season||{}; const f=x.fit||{}; return `<tr><td>${esc(x.name)}<br><span class="small muted">${esc(x.country)} · tier ${x.tier}</span></td><td>${x.seasons} (from ${esc(x.first_season)})</td><td>${esc(s.season||'—')}${s.status==='irregular'?' <span class="st historical_only">irregular</span>':''}</td><td class="num">${s.n_matches??'—'}</td><td class="num">${s.n_results??'—'}</td><td>${f.converged?`<span class="st supported">converged</span> <span class="small muted">${f.n_matches} matches · ${f.teams} teams</span>`:`<span class="st awaiting_coverage">not fitted</span>`}</td></tr>`}).join('')}</table></div>
+  <p class="small muted">Primary source: ${esc(c.source.primary)} · commit ${esc((c.source.commit||{}).commit||'').slice(0,10)} (${esc((c.source.commit||{}).commit_date||'')}) · ingested ${fmtDT(c.source.ingested_at)}. Cup and play-off matches are excluded.</p>
+  <h2>Ticket-team watchlist</h2>
+  <p class="muted">${w.n_teams} distinct teams from ${w.n_ticket_lines} ticket lines. ${w.summary.supported} supported, ${w.summary.historical_only} seen only in past seasons, ${w.summary.awaiting_coverage} awaiting a data source.</p>
+  <div class="tbl-wrap"><table class="data"><tr><th>Team (as on ticket)</th><th>Country</th><th>Status</th><th>Mapped to</th><th>Note</th></tr>
+  ${w.teams.map(t=>`<tr><td>${esc(t.ticket_name)}</td><td>${esc(t.country_name)}</td><td><span class="st ${t.status}">${t.status.replace(/_/g,' ')}</span></td><td class="small">${esc(t.canonical_id||'—')}</td><td class="small muted">${esc(t.note||'')}</td></tr>`).join('')}</table></div>
+  <h2>Missing sources</h2><ul>${c.missing_sources.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>`;
+  $('#coverage').innerHTML=html;
+}
+
+// ---------- methodology
+function renderMethod(){
+  const m=D.model, p=D.policy;
+  $('#method').innerHTML = `<h2>What a pick is</h2>
+  <p>Every supported fixture is rated by a Dixon–Coles goal model fitted per league. From the fitted model we draw ${m.sim.n.toLocaleString()} plausible parameter sets, generate one full-time score from each, and settle every market from those same scores. A market qualifies when at least ${pct0(p.survival_threshold)} of the simulated matches survive the line. Survival means winning for half-goal lines and winning-or-pushing for whole-goal lines; whole-goal lines must also win outright at least ${pct0(p.integer_min_win)} of the time.</p>
+  <div class="callout">The 80% rule is per selection. A card of 14–20 separate picks does not have an 80% chance of all landing — multiply the survival rates if you want an accumulator estimate.</div>
+  <h3>One primary line per fixture</h3><p>The primary line is the first qualifying market in this order: ${p.primary_order.map(x=>x.replace('_',' ')).join(' → ')}. Other qualifying lines are shown inside the card as secondary information, never as extra picks. Fixtures are ranked ticket-team first, then by line level, then by survival, and the card is capped at ${p.max_picks}. The ${p.target_picks}-pick target is not a quota; the threshold is never relaxed to fill the card.</p>
+  <h3>Model</h3><p>λ<sub>home</sub> = exp(μ + home advantage + attack<sub>home</sub> − defence<sub>away</sub>), λ<sub>away</sub> = exp(μ + attack<sub>away</sub> − defence<sub>home</sub>), with the Dixon–Coles low-score correction. Matches are weighted by exp(−ξ·days) with ξ = ${m.hyper.xi}; attack and defence are shrunk toward the league mean with an L2 penalty of ${m.hyper.l2}. Promoted teams are shrunk toward a prior estimated from training seasons only. Parameter uncertainty is a Laplace approximation (inverse Hessian at the penalised optimum) — the posterior-predictive draws come from that Gaussian. "Predicted goals" are the model's expected goals per team; they are not observed xG.</p>
+  <h3>Simulation validity</h3><p>Parameter draws that produce a negative Dixon–Coles adjustment or leave more than ${m.hyper.tail_tolerance} probability mass outside the 0–${m.hyper.max_goals} score grid are discarded and counted, never clipped or renormalised. Each fixture records its requested and completed simulation counts, deterministic seed, invalid-draw counts and a Monte Carlo standard error.</p>
+  <h3>How good is it?</h3><p>On the untouched 2024-25 and 2025-26 test seasons the model beats a league-average reference on every market, but it does <b>not</b> beat the Pinnacle closing price on Over 2.5 (the one line with closing odds available) — the market is sharper. Match-total probabilities were somewhat over-confident in the test seasons (calibration slope ≈ 0.77), team-goal markets were close to calibrated; the Results tab tracks predicted versus observed survival prospectively so drift is visible.</p>
+  <h3>What is not modelled</h3><p>Lineups, injuries, rest, cup congestion, weather, referee and motivation are not inputs. Odds are not available in this deployment, so no expected-value or closing-line comparison is made and no betting edge is claimed. Promotions such as 1UP / 2UP / Early Goals seen on tickets are not ordinary full-time markets and are not settled here.</p>
+  <h3>Leakage controls</h3><p>Every historical prediction is generated from a guarded as-of view: only results available three hours after kick-off and before the cutoff are visible, promotion status comes from schedule membership, and priors come from training seasons. Prediction records are immutable once written; settlement fills separate columns.</p>
+  <h3>Versions</h3><dl class="kv"><dt>Model</dt><dd>${esc(m.version)}</dd><dt>Selection policy</dt><dd>${esc(p.version)}</dd><dt>Run</dt><dd>${esc(D.run_id)}</dd><dt>Data cutoff</dt><dd>${fmtDT(D.data_cutoff_utc)}</dd><dt>Data commit</dt><dd>${esc(D.data_commit.commit.slice(0,10))} · ${esc(D.data_commit.commit_date)}</dd></dl>
+  <details class="sec"><summary>Fitted league parameters</summary><div><div class="tbl-wrap"><table class="data"><tr><th>League</th><th class="num">μ</th><th class="num">Home adv.</th><th class="num">ρ</th><th class="num">Matches</th><th>Promoted (prior applied)</th></tr>${Object.entries(m.fits).map(([c,f])=>`<tr><td>${esc(COMP[c]?.name||c)}</td><td class="num">${f.mu!=null?f.mu.toFixed(3):'—'}</td><td class="num">${f.home_adv!=null?f.home_adv.toFixed(3):'—'}</td><td class="num">${f.rho!=null?f.rho.toFixed(3):'—'}</td><td class="num">${f.n_matches??'—'}</td><td class="small">${(f.promoted||[]).map(x=>x.split(':')[1]).join(', ')}</td></tr>`).join('')}</table></div></div></details>`;
+}
+
+function renderFoot(){
+  $('#foot').innerHTML = `Times shown in your device's timezone (data stored in UTC; board days are grouped by ${esc(D.display_tz)}). Research board only — no bets are placed and no edge is claimed. Generated ${fmtDT(D.generated_at_utc)} by run ${esc(D.run_id)}.`;
+}
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]'); if(!b) return; state.tab=b.dataset.tab;
+  document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',x===b)); document.querySelectorAll('[role=tabpanel]').forEach(s=>s.hidden = s.id!==state.tab);});
+renderStatus(); renderBoard(); renderResults(); renderCoverage(); renderMethod(); renderFoot();
+})();
+</script>
