@@ -17,10 +17,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-MARKETS: list[tuple[str, float]] = [
-    ("match_over", 0.5), ("match_over", 1.0), ("match_over", 1.5), ("match_over", 2.0), ("match_over", 2.5),
-    ("home_over", 0.5), ("home_over", 1.5), ("away_over", 0.5), ("away_over", 1.5),
-]
+LINES = [0.5, 1.0, 1.5, 2.0, 2.5]
+MARKETS: list[tuple[str, float]] = [(m, l) for m in ("match_over", "home_over", "away_over") for l in LINES]
 
 
 def is_integer_line(line: float) -> bool:
@@ -81,7 +79,34 @@ def settle_all(home: np.ndarray, away: np.ndarray, markets: list[tuple[str, floa
 
 
 def describe(market: str, line: float, home_name: str, away_name: str) -> str:
+    """Unambiguous label: always says whose goals the line concerns."""
     if market == "match_over":
-        return f"Match Over {line:g} goals"
+        return f"Total match goals Over {line:.1f}"
     team = home_name if market == "home_over" else away_name
-    return f"{team} Over {line:g} goals"
+    return f"{team} Over {line:.1f} team goals"
+
+
+def subject(market: str, home_name: str, away_name: str) -> str:
+    return "total match goals" if market == "match_over" else (home_name if market == "home_over" else away_name) + " goals"
+
+
+def settlement_text(market: str, line: float, home_name: str, away_name: str) -> list[str]:
+    """Plain-language settlement rules, e.g. Chelsea Over 1.0: 2+ to win, exactly 1 refund, 0 lose."""
+    who = "The match needs" if market == "match_over" else f"{home_name if market == 'home_over' else away_name} must score"
+    g = lambda n: f"{n} goal{'' if n == 1 else 's'}"
+    if is_integer_line(line):
+        n = int(line)
+        lose = "0 goals to lose." if n == 1 else f"{n - 1} or fewer goals to lose."
+        return [f"{who} {n + 1}+ goals to win.", f"Exactly {g(n)} for a refund (push).", lose]
+    n = int(math.ceil(line))
+    lose = "0 goals to lose." if n == 1 else f"{n - 1} or fewer goals to lose."
+    return [f"{who} {n}+ goals to win.", lose]
+
+
+def break_even_odds(p_win: float, p_loss: float) -> float | None:
+    """Decimal odds at which EV = 0 for a market with pushes returning the stake: 1 + p_loss / p_win."""
+    return 1 + p_loss / p_win if p_win > 0 else None
+
+
+def expected_value(p_win: float, p_loss: float, decimal_odds: float) -> float:
+    return p_win * (decimal_odds - 1) - p_loss

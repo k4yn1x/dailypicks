@@ -144,18 +144,32 @@ def test_eighty_percent_gate_is_unrounded():
     assert not qualifies(S("match_over", 2.0, 0.65, 0.10))[0]       # survival 0.75
 
 
-def test_one_primary_per_fixture_and_priority_order():
+def test_primary_choice_without_prices_uses_break_even_not_lowest_line():
     st = [S("match_over", 0.5, 0.97, 0), S("match_over", 1.0, 0.85, 0.10), S("match_over", 1.5, 0.85, 0), S("match_over", 2.0, 0.55, 0.30),
           S("match_over", 2.5, 0.55, 0), S("home_over", 0.5, 0.9, 0), S("home_over", 1.5, 0.6, 0), S("away_over", 0.5, 0.5, 0), S("away_over", 1.5, 0.2, 0)]
     d = decide_fixture("m", st, watchlist=False)
-    assert d.status == "pick" and (d.primary.market, d.primary.line) == ("match_over", 1.5)
-    assert all((s.market, s.line) != ("match_over", 1.5) for s in d.secondary)
-    assert ("match_over", 2.0) not in [(s.market, s.line) for s in d.secondary]  # failed the min-win rule
+    assert d.status == "pick" and d.basis == "break_even"
+    assert (d.primary.s.market, d.primary.s.line) == ("match_over", 1.5)      # highest break-even among qualifying lines
+    assert abs(d.primary.break_even - (1 + 0.15 / 0.85)) < 1e-12
+    assert not [l for l in d.lines if l.key == ("match_over", 2.0)][0].qualified  # failed the min-win rule
+    assert sum(1 for l in d.lines if l.key == d.primary.key) == 1
+
+
+def test_primary_choice_with_prices_uses_ev_and_never_invents_prices():
+    st = [S("match_over", 0.5, 0.97, 0), S("match_over", 1.5, 0.85, 0), S("home_over", 1.0, 0.68, 0.20)]
+    prices = {("match_over", 0.5): {"price": 1.05, "bookmaker": "X", "last_update": "t"},
+              ("home_over", 1.0): {"price": 1.25, "bookmaker": "Y", "last_update": "t"}}
+    d = decide_fixture("m", st, watchlist=False, prices=prices)
+    assert d.basis == "ev" and d.primary.key == ("home_over", 1.0)
+    assert abs(d.primary.ev - (0.68 * 0.25 - 0.12)) < 1e-12
+    assert abs(d.primary.break_even - (1 + 0.12 / 0.68)) < 1e-12
+    unpriced = [l for l in d.lines if l.key == ("match_over", 1.5)][0]
+    assert unpriced.price is None and unpriced.ev is None and unpriced.break_even is not None
 
 
 def test_pass_when_nothing_qualifies_and_cap_and_no_minimum():
     d = decide_fixture("m", [S("match_over", 0.5, 0.79, 0)], watchlist=True)
-    assert d.status == "pass" and "80" in d.reason or "survival" in d.reason
+    assert d.status == "pass" and "survival" in d.reason
     decisions = [decide_fixture(f"m{i}", [S("match_over", 1.5, 0.81 + i * 0.001, 0)], watchlist=(i % 2 == 0)) for i in range(25)]
     rank_and_cap(decisions, {f"m{i}": "2026-01-01T00:00:00+00:00" for i in range(25)})
     picks = sorted([d for d in decisions if d.status == "pick"], key=lambda d: d.rank); capped = [d for d in decisions if d.status == "qualified_capped"]
@@ -165,3 +179,12 @@ def test_pass_when_nothing_qualifies_and_cap_and_no_minimum():
     few = [decide_fixture("a", [S("match_over", 1.5, 0.9, 0)], False)]
     rank_and_cap(few, {"a": "x"})
     assert sum(d.status == "pick" for d in few) == 1     # no forced minimum: one qualifying fixture -> one pick
+
+
+def test_all_fifteen_lines_present_and_labelled_by_subject():
+    from dailypicks.markets import MARKETS, describe, settlement_text
+    assert len(MARKETS) == 15 and {m for m, _ in MARKETS} == {"match_over", "home_over", "away_over"}
+    assert describe("home_over", 1.0, "Chelsea", "Manchester United") == "Chelsea Over 1.0 team goals"
+    assert describe("match_over", 1.0, "Chelsea", "Manchester United") == "Total match goals Over 1.0"
+    rules = settlement_text("home_over", 1.0, "Chelsea", "Manchester United")
+    assert rules == ["Chelsea must score 2+ goals to win.", "Exactly 1 goal for a refund (push).", "0 goals to lose."]

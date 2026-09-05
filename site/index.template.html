@@ -84,8 +84,13 @@ nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(-
 .det th,.det td{text-align:right;padding:4px 6px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;white-space:nowrap}
 .det th{font-family:var(--body);font-weight:500;color:var(--ink-3);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 .det td:first-child,.det th:first-child{text-align:left;font-family:var(--body);white-space:normal}
-.det tr.q td{color:var(--good);font-weight:500} .det tr.prim td:first-child::after{content:" · primary";color:var(--ink-3);font-weight:400}
+.det tr.q td{color:var(--good);font-weight:500} .det tr.prim td{background:var(--accent-soft)}
 .tbl-wrap{overflow-x:auto}
+.sec-h{font-family:var(--display);font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin:14px 0 4px}
+.primary-box{border:1px solid var(--accent);border-left-width:4px;border-radius:var(--r);background:var(--surface);padding:10px 12px;margin-bottom:6px}
+.primary-box.pass{border-color:var(--line)}
+.pb-l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)} .pb-t{font-family:var(--display);font-size:22px;font-weight:700;line-height:1.1;margin:2px 0 4px}
+.pb-s{font-size:12px;color:var(--ink-2);margin-top:4px;max-width:70ch} .pb-rules{margin:6px 0 0;padding-left:18px;font-size:13px} .pb-rules li{margin:1px 0}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:8px 0 0;font-size:12px}
 .kv dt{color:var(--ink-3)} .kv dd{margin:0;font-family:var(--mono)}
 h2{font-family:var(--display);font-size:26px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;margin:24px 0 8px;text-wrap:balance}
@@ -108,7 +113,11 @@ details.sec summary{padding:10px 12px;font-weight:600;cursor:pointer} details.se
 .empty{padding:28px 12px;text-align:center;color:var(--ink-2)}
 footer{margin-top:32px;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:12px;max-width:70ch}
 @media (max-width:480px){
-  .fx summary{grid-template-columns:44px 1fr auto;gap:8px;padding:9px 10px}
+  .fx summary{grid-template-columns:44px 1fr;grid-template-areas:"ko teams" "pick pick";gap:6px 8px;padding:9px 10px}
+  .fx summary .ko{grid-area:ko} .fx summary .teams{grid-area:teams} .fx summary .pick,.fx summary .state{grid-area:pick;max-width:none;text-align:left}
+  .fx summary .pick{display:grid;grid-template-columns:1fr auto;gap:0 10px;align-items:end;border-top:1px dashed var(--line);padding-top:6px}
+  .fx summary .pick .mk{grid-column:1} .fx summary .pick .wpl:first-of-type{grid-column:1;margin-top:2px} .fx summary .pick .sv{grid-column:2;grid-row:1/3;text-align:right}
+  .fx summary .pick .bar{grid-column:1/-1} .fx summary .pick .wpl:last-child{grid-column:1/-1}
   .ko{font-size:19px} .pick{min-width:96px} .pick .sv{font-size:26px} .summary .n{font-size:32px}
   .summary{grid-template-columns:repeat(3,auto);gap:0 14px}
   nav.tabs button{font-size:16px;padding:9px 10px}
@@ -170,7 +179,7 @@ function fixtureCard(f, day){
   const cls = {pick:'is-pick',qualified_capped:'capped',pass:'pass',unrated:'unrated',started:'started'}[status]||'';
   let right='';
   if(p && status==='pick'){
-    right = `<div class="pick"><div class="mk">${esc(p.label)}</div>
+    right = `<div class="pick"><div class="mk">${esc(p.label)}</div>${p.odds?`<div class="wpl">${fmtOdds(p.odds.price)} ${esc(p.odds.bookmaker)} · EV ${(p.ev*100).toFixed(1)}%</div>`:`<div class="wpl">break-even ${fmtOdds(p.break_even)} (est.)</div>`}
       <div class="sv">${pct(p.survival)}<em>survive</em></div>
       <div class="bar"><b class="w" style="width:${p.p_win*100}%"></b><b class="p" style="width:${p.p_push*100}%"></b></div>
       <div class="wpl">W ${pct0(p.p_win)} · P ${pct0(p.p_push)} · L ${pct0(p.p_loss)}</div></div>`;
@@ -194,21 +203,35 @@ function fixtureCard(f, day){
     <div class="teams"><div class="t">${esc(f.home)}</div><div class="t">${esc(f.away)}</div><div class="meta">${tags.join('')}</div></div>
     ${right}</summary>${details(f)}</details>`;
 }
+function fmtOdds(x){return x==null?'—':x.toFixed(2)}
+function lineRow(m, prim){
+  const isP = prim && m.market===prim.market && m.line===prim.line;
+  const st = m.qualified ? (m.marginal?'<span class="st push">qualifies (marginal)</span>':'<span class="st win">qualifies</span>') : `<span class="st open" title="${esc(m.reason)}">no</span>`;
+  const odds = m.odds ? `${fmtOdds(m.odds.price)}<br><span class="small muted">${esc(m.odds.bookmaker)}${m.odds.stale?' · stale':''}</span>` : '<span class="muted">none</span>';
+  const ev = m.ev==null ? '—' : (m.ev>=0?'+':'')+(m.ev*100).toFixed(1)+'%';
+  return `<tr class="${m.qualified?'q':''} ${isP?'prim':''}"><td>Over ${m.line.toFixed(1)}${isP?' <span class="tag rank">primary</span>':''}</td><td>${pct(m.p_win)}</td><td>${pct(m.p_push)}</td><td>${pct(m.p_loss)}</td><td>${pct(m.survival)}</td><td>${fmtOdds(m.break_even)}</td><td>${odds}</td><td>${ev}</td><td>${st}</td></tr>`;
+}
+function section(title, rows, prim){
+  return `<h4 class="sec-h">${esc(title)}</h4><div class="tbl-wrap"><table><thead><tr><th>Line</th><th>Win</th><th>Push</th><th>Loss</th><th>Survival</th><th>B/E*</th><th>Odds</th><th>EV</th><th>Qualifies</th></tr></thead><tbody>${rows.map(m=>lineRow(m,prim)).join('')}</tbody></table></div>`;
+}
 function details(f){
   if(!f.markets) return `<div class="det"><p class="muted small">${esc(f.reason||'No model output for this fixture.')}</p>${verif(f)}</div>`;
-  const prim = f.primary ? f.primary.market+':'+f.primary.line : '';
-  const sec = new Set((f.secondary||[]).map(s=>s.market+':'+s.line));
-  const rows = f.markets.map(m=>{ const k=m.market+':'+m.line; const q = k===prim||sec.has(k);
-    return `<tr class="${q?'q':''} ${k===prim?'prim':''}"><td>${esc(m.label.replace(' goals','').replace('Match ',''))}</td><td>${pct(m.p_win)}</td><td>${pct(m.p_push)}</td><td>${pct(m.p_loss)}</td><td>${pct(m.survival)}</td><td>±${(m.mc_se*100).toFixed(2)}</td></tr>`;}).join('');
-  const s=f.sim, g=f.predicted_goals;
-  return `<div class="det">
-    <div class="tbl-wrap"><table><thead><tr><th>Market</th><th>Win</th><th>Push</th><th>Loss</th><th>Survival</th><th>MC ±</th></tr></thead><tbody>${rows}</tbody></table></div>
+  const prim=f.primary; const s=f.sim, g=f.predicted_goals;
+  const by = k => f.markets.filter(m=>m.market===k);
+  const primBlock = prim ? `<div class="primary-box"><div class="pb-l">Primary selection</div><div class="pb-t">${esc(prim.label)}</div>
+      <div class="pb-s">Simulation: ${pct0(prim.p_win)} win / ${pct0(prim.p_push)} push / ${pct0(prim.p_loss)} loss · Survival ${pct(prim.survival)} (MC ±${(prim.mc_se*100).toFixed(2)} pts)</div>
+      <ul class="pb-rules">${prim.settlement.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+      <div class="pb-s">${prim.odds?`Bookmaker: ${fmtOdds(prim.odds.price)} at ${esc(prim.odds.bookmaker)} (updated ${fmtDT(prim.odds.last_update)}) · EV ${(prim.ev*100).toFixed(1)}% per unit`:`No bookmaker price available — model break-even <b>${fmtOdds(prim.break_even)}</b> (estimate: EV is zero at this price, positive above it)`}${f.basis==='ev'?' · chosen by highest EV':' · chosen by highest break-even among qualifying lines'}</div></div>` : `<div class="primary-box pass"><div class="pb-l">No selection</div><div class="pb-s">${esc(f.reason)}</div></div>`;
+  return `<div class="det">${primBlock}
+    ${section(f.home+' team goals', by('home_over'), prim)}
+    ${section(f.away+' team goals', by('away_over'), prim)}
+    ${section('Total match goals', by('match_over'), prim)}
+    <p class="small muted">*Break-even = 1 + loss ÷ win: the decimal price at which expected value is zero. It is a model estimate, not an available price. EV = win × (odds − 1) − loss; shown only when a real bookmaker price exists (${esc((f.odds||{}).status||'no odds source')}).</p>
     <dl class="kv">
       <dt>Predicted goals</dt><dd>${esc(f.home)} ${g.home.toFixed(2)} · ${esc(f.away)} ${g.away.toFixed(2)} (Dixon–Coles ρ ${g.rho})</dd>
       <dt>Simulations</dt><dd>${s.valid.toLocaleString()} valid of ${s.requested.toLocaleString()} required · ${s.drawn.toLocaleString()} parameter draws · ${s.invalid_tail+s.invalid_negative+s.invalid_nonfinite} discarded (tail ${s.invalid_tail}, invalid τ ${s.invalid_negative})</dd>
       <dt>Seed</dt><dd>${s.seed}</dd>
       <dt>Sim mean total</dt><dd>${s.diagnostics.sim_mean_total.toFixed(2)} goals (sd ${s.diagnostics.sim_sd_total.toFixed(2)}), P(0–0) ${pct(s.diagnostics.sim_p_0_0)}</dd>
-      <dt>Rule check</dt><dd>${esc(f.reason||'')}</dd>
       ${f.promoted_prior_applied&&f.promoted_prior_applied.length?`<dt>Promoted prior</dt><dd>applied to ${f.promoted_prior_applied.length} team(s)</dd>`:''}
     </dl>${verif(f)}</div>`;
 }
@@ -234,7 +257,7 @@ function renderBoard(){
       <div><div class="n">${day.n_rated}</div><div class="l">Rated</div></div>
       <div><div class="n">${day.n_fixtures}</div><div class="l">Fixtures</div></div>
       <div class="note">${day.provisional?'<b>Provisional</b> — this day is re-run each morning until its own prediction cutoff. ':''}${esc(day.shortfall_note||(day.n_qualified_capped?day.n_qualified_capped+' more fixtures qualified but were omitted by the 20-pick cap.':''))}
-      ${day.n_picks?'Each pick is one selection at ≥80% simulated survival; pushes count for whole-goal lines. This is not an accumulator probability.':''}</div>
+      ${day.n_picks?'Each pick is one selection at ≥80% simulated survival; pushes count for whole-goal lines. Labels always say whose goals a line concerns. This is not an accumulator probability.':''}</div>
     </div>
     <div class="filters">
       <div class="seg"><button data-view="picks" aria-pressed="${state.view==='picks'}">Picks only</button><button data-view="all" aria-pressed="${state.view==='all'}">All fixtures</button></div>
@@ -312,7 +335,8 @@ function renderMethod(){
   $('#method').innerHTML = `<h2>What a pick is</h2>
   <p>Every supported fixture is rated by a Dixon–Coles goal model fitted per league. From the fitted model we draw ${m.sim.n.toLocaleString()} plausible parameter sets, generate one full-time score from each, and settle every market from those same scores. A market qualifies when at least ${pct0(p.survival_threshold)} of the simulated matches survive the line. Survival means winning for half-goal lines and winning-or-pushing for whole-goal lines; whole-goal lines must also win outright at least ${pct0(p.integer_min_win)} of the time.</p>
   <div class="callout">The 80% rule is per selection. A card of 14–20 separate picks does not have an 80% chance of all landing — multiply the survival rates if you want an accumulator estimate.</div>
-  <h3>One primary line per fixture</h3><p>The primary line is the first qualifying market in this order: ${p.primary_order.map(x=>x.replace('_',' ')).join(' → ')}. Other qualifying lines are shown inside the card as secondary information, never as extra picks. Fixtures are ranked ticket-team first, then by line level, then by survival, and the card is capped at ${p.max_picks}. The ${p.target_picks}-pick target is not a quota; the threshold is never relaxed to fill the card.</p>
+  <h3>Fifteen lines per fixture, one primary</h3><p>For each fixture the same 10,000 simulated scores settle Over 0.5 / 1.0 / 1.5 / 2.0 / 2.5 for the home team's goals, the away team's goals and the total match goals. Every label names whose goals it concerns. ${esc(p.primary_rule)}. Ranking across fixtures: ${esc(p.ranking)}; cap ${p.max_picks}. The ${p.target_picks}-pick target is not a quota; the threshold is never relaxed and a higher goal line is never forced just to raise the odds — if nothing qualifies the fixture is a PASS.</p>
+  <h3>Odds, break-even and EV</h3><p>Break-even decimal odds = 1 + P(loss) ÷ P(win) — the price at which EV is zero, with pushes returning the stake. EV = P(win) × (odds − 1) − P(loss). Bookmaker prices are shown with their bookmaker and timestamp when a source is configured (${esc(D.odds_source.source)}: currently <b>${esc(D.odds_source.status)}</b>); otherwise only the labelled break-even estimate is shown and no price is ever invented. A price older than ${p.odds_max_age_hours} h is shown as stale and not used for EV.</p>
   <h3>Model</h3><p>λ<sub>home</sub> = exp(μ + home advantage + attack<sub>home</sub> − defence<sub>away</sub>), λ<sub>away</sub> = exp(μ + attack<sub>away</sub> − defence<sub>home</sub>), with the Dixon–Coles low-score correction. Matches are weighted by exp(−ξ·days) with ξ = ${m.hyper.xi}; attack and defence are shrunk toward the league mean with an L2 penalty of ${m.hyper.l2}. Promoted teams are shrunk toward a prior estimated from training seasons only. Parameter uncertainty is a Laplace approximation (inverse Hessian at the penalised optimum) — the posterior-predictive draws come from that Gaussian. "Predicted goals" are the model's expected goals per team; they are not observed xG.</p>
   <h3>Simulation validity</h3><p>Parameter draws that produce a negative Dixon–Coles adjustment or leave more than ${m.hyper.tail_tolerance} probability mass outside the 0–${m.hyper.max_goals} score grid are discarded and counted, never clipped or renormalised. Each fixture records its requested and completed simulation counts, deterministic seed, invalid-draw counts and a Monte Carlo standard error.</p>
   <h3>How good is it?</h3><p>On the untouched 2024-25 and 2025-26 test seasons the model beats a league-average reference on every market, but it does <b>not</b> beat the Pinnacle closing price on Over 2.5 (the one line with closing odds available) — the market is sharper. Match-total probabilities were somewhat over-confident in the test seasons (calibration slope ≈ 0.77), team-goal markets were close to calibrated; the Results tab tracks predicted versus observed survival prospectively so drift is visible.</p>

@@ -28,6 +28,12 @@ Run log stages (table `runs`, column `stages_json`): scheduled → started → d
 
 The page compares its `generated_at_utc` with the viewer's clock and shows a **Stale** pill after 30 h. Fixtures whose kick-off has passed are greyed out client-side as "Started" between refreshes.
 
+## Selection policy select-2.0.0 (odds-aware, team + match totals)
+
+Per fixture, the same 10,000 simulated scores settle 15 lines: home-team goals, away-team goals and total match goals, each at Over 0.5 / 1.0 / 1.5 / 2.0 / 2.5. Labels always name whose goals a line concerns. A line qualifies at ≥80% unrounded survival (win + push for whole-goal lines) and ≥60% outright win for whole-goal lines. Every line shows win / push / loss, a model break-even price (1 + P(loss)/P(win), labelled as an estimate) and, when a real bookmaker price exists, the price with bookmaker + timestamp and EV = P(win)(d−1) − P(loss). Primary = highest EV among qualifying priced lines; without prices, highest break-even among qualifying lines (never the lowest line by default, never a non-qualifying line to raise odds). Prices older than 24 h are shown as stale and not used.
+
+**Odds source:** `dailypicks/sources/oddsapi.py` (The Odds API v4, `ODDS_API_KEY` env var, markets totals / alternate_totals / team_totals / alternate_team_totals). Not configured in the current deployment and, like other non-GitHub hosts, unlikely to be reachable from the cloud refresh session — so the live board shows break-even estimates only. It is untested against the live API (no key); on GitHub Actions add the key as a repository secret.
+
 ## Known limitations (honest list)
 
 - Only eight competitions have a live source (openfootball). 58 of the 110 ticket teams are in leagues with no ingested source; they are listed as *awaiting coverage*, never silently dropped.

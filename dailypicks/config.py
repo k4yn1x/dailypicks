@@ -17,7 +17,7 @@ DB_PATH = DATA_DIR / "dailypicks.sqlite"
 SITE_DIR = ROOT / "site"
 
 MODEL_VERSION = "dc-1.0.0"
-POLICY_VERSION = "select-1.0.0"
+POLICY_VERSION = "select-2.0.0"
 SCHEMA_VERSION = "1"
 
 # Display timezone for the website (user's choice); storage is always UTC.
@@ -70,20 +70,13 @@ SIM = {
 
 # ---- Selection policy (POLICY_VERSION) ----
 POLICY = {
-    "survival_threshold": 0.80,          # applied to unrounded survival
-    "integer_min_win": 0.60,             # integer lines must also have >= 60% outright win
+    "survival_threshold": 0.80,          # applied to unrounded survival (win + push for whole-goal lines)
+    "integer_min_win": 0.60,             # whole-goal lines must also win outright >= 60% (documented minimum)
     "max_picks": 20,
     "target_picks": 14,                  # target, not a quota
-    # Market candidate order for choosing the primary line within a fixture:
-    # highest qualifying match-total line first, then team lines.
-    "primary_order": [
-        ("match_over", 2.5), ("match_over", 2.0), ("match_over", 1.5),
-        ("match_over", 1.0), ("match_over", 0.5),
-        ("home_over", 1.5), ("away_over", 1.5), ("home_over", 0.5), ("away_over", 0.5),
-    ],
-    # Ranking across fixtures: watchlist first, then line level desc, then survival desc.
-    "rank_keys": ["watchlist", "line_level", "survival"],
     "kickoff_buffer_minutes": 15,        # do not recommend fixtures kicking off within this buffer
+    "odds_max_age_hours": 24,            # a bookmaker price older than this is treated as stale (shown, not used for EV)
+    "lines": [0.5, 1.0, 1.5, 2.0, 2.5],  # evaluated for total match goals, home team goals, away team goals
 }
 
 # Refresh schedule

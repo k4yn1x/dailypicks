@@ -27,10 +27,11 @@ import numpy as np
 from . import ingest, watchlist as wl
 from .config import (ACTIVE_COMPETITIONS, COMPETITIONS, DATA_DIR, DISPLAY_TZ, MODEL, MODEL_VERSION, POLICY, POLICY_VERSION,
                      PUBLISHED_DIR, SIM, STALE_AFTER_HOURS)
-from .markets import MARKETS, describe, settle_all, settle_one
+from .markets import MARKETS, describe, settle_all, settle_one, settlement_text, subject
+from .sources import oddsapi
 from .model import dixon_coles as dc
 from .model import priors as priors_mod
-from .select import decide_fixture, rank_and_cap, policy_description, LINE_LEVEL
+from .select import decide_fixture, rank_and_cap, policy_description
 from .simulate import simulate_fixture
 from .sources import espn
 from .store import DATASET_PATH, LEDGER_PATH, AsOfView, connect, init_ledger, iso, utcnow
@@ -140,8 +141,14 @@ def rate_fixture(fit: dc.FitResult | None, m, now: datetime, promoted_prior_used
     return rec
 
 
-def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, log: RunLog | None = None) -> dict:
+def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, log: RunLog | None = None, fetch_odds: bool = True) -> dict:
     view = AsOfView(now)
+    odds_map, odds_status = ({}, {"source": "the-odds-api.com", "status": "not configured", "retrieved_at": None, "events": 0, "detail": ""})
+    if fetch_odds and oddsapi.configured():
+        try:
+            odds_map, odds_status = oddsapi.fetch_fixture_odds(ACTIVE_COMPETITIONS)
+        except Exception as e:  # noqa: BLE001
+            odds_status = {"source": "the-odds-api.com", "status": "unavailable", "retrieved_at": None, "events": 0, "detail": f"{type(e).__name__}: {e}"[:200]}
     priors = priors_mod.load()
     watch = wl.supported_ids()
     fits: dict[str, dc.FitResult | None] = {}
@@ -219,6 +226,8 @@ def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, 
         fx["watchlist"] = fx["home_id"] in watch or fx["away_id"] in watch
         by_day[fx["display_date"]].append(fx)
     days = []
+    if today.isoformat() not in by_day:
+        by_day[today.isoformat()] = []   # today with no remaining fixtures still gets a (empty) board entry
     for d in sorted(by_day):
         if d < today.isoformat():
             continue
@@ -226,18 +235,20 @@ def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, 
         decisions = {}
         for fx in fxs:
             if fx["rated"]:
-                decisions[fx["match_id"]] = decide_fixture(fx["match_id"], fx["_settlements"], fx["watchlist"])
+                prices = _prices_for(fx, odds_map, now)
+                fx["odds"] = {"status": "available" if prices else odds_status["status"], "source": odds_status["source"],
+                              "retrieved_at": odds_status.get("retrieved_at")}
+                decisions[fx["match_id"]] = decide_fixture(fx["match_id"], fx["_settlements"], fx["watchlist"], prices)
         rank_and_cap(list(decisions.values()), {fx["match_id"]: fx["kickoff_utc"] for fx in fxs})
         for fx in fxs:
             dec = decisions.get(fx["match_id"])
             if dec is None:
                 fx["status"] = "unrated"
             else:
-                fx["status"] = dec.status; fx["reason"] = dec.reason; fx["rank"] = dec.rank
-                fx["market_reasons"] = dec.market_reasons
+                fx["status"] = dec.status; fx["reason"] = dec.reason; fx["rank"] = dec.rank; fx["basis"] = dec.basis
+                fx["markets"] = [_mk(l, fx) for l in dec.lines]
                 if dec.primary:
                     fx["primary"] = _mk(dec.primary, fx)
-                fx["secondary"] = [_mk(s, fx) for s in dec.secondary]
             fx.pop("_settlements", None)
         picks = sorted([fx for fx in fxs if fx["status"] == "pick"], key=lambda f: f["rank"])
         days.append({"date": d, "is_today": d == today.isoformat(), "provisional": d != today.isoformat(),
@@ -246,16 +257,42 @@ def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, 
                      "n_pass": sum(1 for f in fxs if f["status"] == "pass"), "n_unrated": sum(1 for f in fxs if f["status"] == "unrated"),
                      "shortfall_note": _shortfall(len(picks), fxs),
                      "fixtures": sorted(fxs, key=lambda f: (f["kickoff_utc"] or "9", f["competition"]))})
-    return {"days": days, "fits": fit_info, "cross_check": xcheck, "today": today.isoformat()}
+    return {"days": days, "fits": fit_info, "cross_check": xcheck, "today": today.isoformat(), "odds_source": odds_status}
 
 
-def _mk(s, fx):
+def _prices_for(fx: dict, odds_map: dict, now: datetime) -> dict:
+    """Best available price per (market, line) for a fixture; stale prices (older than the policy limit) are kept but flagged."""
+    rows = odds_map.get((fx["competition"], fx["home_id"], fx["away_id"]), {})
+    out = {}
+    for key, lst in rows.items():
+        best = oddsapi.best_price(lst)
+        if not best:
+            continue
+        stale = False
+        try:
+            age = now - datetime.fromisoformat(best["last_update"].replace("Z", "+00:00"))
+            stale = age > timedelta(hours=POLICY["odds_max_age_hours"])
+        except Exception:  # noqa: BLE001
+            stale = True
+        out[key] = {**best, "stale": stale, "n_bookmakers": len(lst)}
+    return {k: v for k, v in out.items() if not v["stale"]} | {k: {**v, "excluded": "stale"} for k, v in out.items() if v["stale"]}
+
+
+def _mk(l, fx):
+    s = l.s
+    pr = l.price
     return {"market": s.market, "line": s.line, "label": describe(s.market, s.line, fx["home"], fx["away"]),
+            "subject": subject(s.market, fx["home"], fx["away"]), "settlement": settlement_text(s.market, s.line, fx["home"], fx["away"]),
             "p_win": s.p_win, "p_push": s.p_push, "p_loss": s.p_loss, "survival": s.survival, "mc_se": s.mc_se,
-            "line_level": LINE_LEVEL[(s.market, s.line)]}
+            "qualified": l.qualified, "reason": l.reason, "marginal": l.marginal, "break_even": l.break_even,
+            "odds": ({"price": pr["price"], "bookmaker": pr["bookmaker"], "last_update": pr.get("last_update"), "retrieved_at": pr.get("retrieved_at"),
+                      "n_bookmakers": pr.get("n_bookmakers"), "stale": pr.get("stale", False)} if pr else None),
+            "ev": l.ev}
 
 
 def _shortfall(n_picks: int, fxs: list) -> str:
+    if not fxs:
+        return "No supported fixtures remain today (all kicked off before this refresh, or none scheduled)."
     if n_picks >= POLICY["target_picks"]:
         return ""
     n_pass = sum(1 for f in fxs if f["status"] == "pass"); n_unrated = sum(1 for f in fxs if f["status"] == "unrated")
@@ -274,8 +311,7 @@ def record_predictions(board: dict, run_id: str, now: datetime, data_commit: str
                 prim = fx.get("primary")
                 for mk in fx["markets"]:
                     is_primary = bool(prim and prim["market"] == mk["market"] and prim["line"] == mk["line"])
-                    qualified = 1 if (fx["status"] in ("pick", "qualified_capped") and (is_primary or any(
-                        s["market"] == mk["market"] and s["line"] == mk["line"] for s in fx.get("secondary", [])))) else 0
+                    qualified = int(bool(mk.get("qualified")))
                     pid = f"{run_id}:{fx['match_id']}:{mk['market']}:{mk['line']}"
                     con.execute("""INSERT OR IGNORE INTO predictions (prediction_id, run_id, match_id, competition, home, away, kickoff_utc, predicted_at_utc, cutoff_utc,
                         model_version, policy_version, data_commit, sim_seed, sim_requested, sim_valid, market, line, p_win, p_push, p_loss, survival,
@@ -283,7 +319,8 @@ def record_predictions(board: dict, run_id: str, now: datetime, data_commit: str
                                 (pid, run_id, fx["match_id"], fx["competition"], fx["home"], fx["away"], fx["kickoff_utc"], iso(now), iso(now), MODEL_VERSION, POLICY_VERSION,
                                  data_commit, fx["sim"]["seed"], fx["sim"]["requested"], fx["sim"]["valid"], mk["market"], mk["line"],
                                  mk["p_win"], mk["p_push"], mk["p_loss"], mk["survival"], qualified, int(is_primary),
-                                 fx["status"] + (": " + fx["reason"] if fx.get("reason") else ""), None, kind))
+                                 fx["status"] + (": " + fx["reason"] if fx.get("reason") else ""),
+                                 json.dumps({"odds": mk.get("odds"), "break_even": mk.get("break_even"), "ev": mk.get("ev")}), kind))
                     n += 1
                 if fx["status"] in ("pick", "qualified_capped") and prim:
                     con.execute("INSERT OR REPLACE INTO selections VALUES (?,?,?,?,?,?,?,?)",
@@ -407,7 +444,7 @@ def run_daily(now: datetime | None = None, trigger: str = "manual", offline: boo
         n_pred = record_predictions(board, run_id, now, ing["commit"]["commit"])
         doc = {
             "generated_at_utc": iso(now), "run_id": run_id, "display_tz": DISPLAY_TZ, "today": board["today"],
-            "data_cutoff_utc": iso(now), "data_commit": ing["commit"], "cross_check": board["cross_check"],
+            "data_cutoff_utc": iso(now), "data_commit": ing["commit"], "cross_check": board["cross_check"], "odds_source": board["odds_source"],
             "model": {"version": MODEL_VERSION, "hyper": MODEL, "sim": SIM, "fits": board["fits"]},
             "policy": policy_description(),
             "days": board["days"],
