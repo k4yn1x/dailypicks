@@ -27,7 +27,7 @@ import numpy as np
 from . import ingest, watchlist as wl
 from .config import (ACTIVE_COMPETITIONS, COMPETITIONS, DATA_DIR, DISPLAY_TZ, MODEL, MODEL_VERSION, POLICY, POLICY_VERSION,
                      PUBLISHED_DIR, SIM, STALE_AFTER_HOURS)
-from .markets import MARKETS, describe, settle_all, settle_one, settlement_text, subject
+from .markets import describe, settle_all, settle_one, settlement_text, subject
 from .sources import oddsapi
 from .model import dixon_coles as dc
 from .model import priors as priors_mod
@@ -133,9 +133,8 @@ def rate_fixture(fit: dc.FitResult | None, m, now: datetime, promoted_prior_used
     if not ok:
         rec["reason"] = f"invalid score distribution: {why}"; return rec
     settlements = settle_all(sim.home, sim.away)
-    rec["markets"] = [{"market": s.market, "line": s.line, "label": describe(s.market, s.line, rec["home"], rec["away"]),
-                       "p_win": s.p_win, "p_push": s.p_push, "p_loss": s.p_loss, "survival": s.survival, "mc_se": s.mc_se} for s in settlements]
-    rec["_settlements"] = settlements
+    rec["_settlements"] = settlements          # full per-line records are attached after selection (see _mk)
+    rec["markets"] = True                      # marker: rated; replaced by the per-line list in build_board
     rec["promoted_prior_applied"] = [t for t in (m["home_id"], m["away_id"]) if t in fit.promoted] if promoted_prior_used else []
     rec["rated"] = True
     return rec
@@ -243,7 +242,7 @@ def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, 
         for fx in fxs:
             dec = decisions.get(fx["match_id"])
             if dec is None:
-                fx["status"] = "unrated"
+                fx["status"] = "unrated"; fx.pop("markets", None)   # rated then excluded by the cross-check, or never rated
             else:
                 fx["status"] = dec.status; fx["reason"] = dec.reason; fx["rank"] = dec.rank; fx["basis"] = dec.basis
                 fx["markets"] = [_mk(l, fx) for l in dec.lines]
@@ -394,7 +393,9 @@ def validate_published(doc: dict) -> None:
             assert all(0 <= p[k] <= 1 for k in ("p_win", "p_push", "p_loss")), "invalid probabilities"
             assert abs(p["p_win"] + p["p_push"] + p["p_loss"] - 1) < 1e-9, "probabilities do not sum to one"
         for f in day["fixtures"]:
+            assert not (f["status"] == "unrated" and f.get("markets")), "unrated fixture carries market records"
             if f.get("markets"):
+                assert isinstance(f["markets"], list) and len(f["markets"]) == 15, "rated fixture must carry all 15 lines"
                 for mk in f["markets"]:
                     assert abs(mk["p_win"] + mk["p_push"] + mk["p_loss"] - 1) < 1e-9
 

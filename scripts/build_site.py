@@ -38,7 +38,7 @@ def _slim(doc: dict) -> dict:
     out = json.loads(json.dumps(doc))
     for day in out["days"]:
         for f in day["fixtures"]:
-            f.pop("market_reasons", None); f.pop("home_raw", None); f.pop("away_raw", None); f.pop("distribution", None)
+            f.pop("home_raw", None); f.pop("away_raw", None); f.pop("distribution", None)
             if f.get("sim"):
                 d = f["sim"].get("diagnostics", {})
                 f["sim"]["diagnostics"] = {k: d[k] for k in ("sim_mean_total", "sim_sd_total", "sim_p_0_0") if k in d}

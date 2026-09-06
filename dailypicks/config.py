@@ -13,7 +13,6 @@ ROOT = Path(os.environ.get("DAILYPICKS_ROOT", Path(__file__).resolve().parent.pa
 DATA_DIR = ROOT / "data"
 ARCHIVE_DIR = DATA_DIR / "archive"
 PUBLISHED_DIR = DATA_DIR / "published"
-DB_PATH = DATA_DIR / "dailypicks.sqlite"
 SITE_DIR = ROOT / "site"
 
 MODEL_VERSION = "dc-1.0.0"

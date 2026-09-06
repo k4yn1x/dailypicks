@@ -66,3 +66,14 @@ def test_validate_published_rejects_over_cap_and_bad_probabilities():
     many["fixtures"][0]["sim"]["valid"] = 10000
     with pytest.raises(AssertionError):
         pipeline.validate_published({"days": [many]})
+
+
+def test_validate_published_rejects_unrated_with_markets_and_partial_line_sets():
+    good = {"n_picks": 0, "fixtures": [{"match_id": "u", "status": "unrated"}]}
+    pipeline.validate_published({"days": [good]})
+    bad = {"n_picks": 0, "fixtures": [{"match_id": "u", "status": "unrated", "markets": True}]}
+    with pytest.raises(AssertionError):
+        pipeline.validate_published({"days": [bad]})
+    partial = {"n_picks": 0, "fixtures": [{"match_id": "p", "status": "pass", "markets": [{"p_win": 0.5, "p_push": 0, "p_loss": 0.5}]}]}
+    with pytest.raises(AssertionError):
+        pipeline.validate_published({"days": [partial]})
