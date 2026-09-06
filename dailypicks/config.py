@@ -21,7 +21,7 @@ POLICY_VERSION = "select-2.0.0"
 SCHEMA_VERSION = "1"
 
 # Display timezone for the website (user's choice); storage is always UTC.
-DISPLAY_TZ = "America/Chicago"
+DISPLAY_TZ = "Africa/Lagos"
 
 # Competitions: openfootball code -> metadata. tz is the league's local kickoff timezone.
 COMPETITIONS = {
@@ -80,6 +80,6 @@ POLICY = {
 }
 
 # Refresh schedule
-REFRESH_LOCAL_TIME = "05:30"
-REFRESH_TZ = "America/Chicago"
+REFRESH_LOCAL_TIME = "01:00"
+REFRESH_TZ = "Africa/Lagos"  # WAT, UTC+1, no DST -> 00:00 UTC
 STALE_AFTER_HOURS = 30

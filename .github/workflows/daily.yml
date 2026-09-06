@@ -2,10 +2,8 @@ name: Daily refresh
 
 on:
   schedule:
-    # 05:30 America/Chicago is 10:30 UTC during CDT and 11:30 UTC during CST.
-    # Both slots fire; scripts/daily.sh exits quietly unless local Chicago time is 05:xx.
-    - cron: "30 10 * * *"
-    - cron: "30 11 * * *"
+    # 01:00 Africa/Lagos (WAT, UTC+1, no daylight saving) = 00:00 UTC.
+    - cron: "0 0 * * *"
     # Lighter fixture-status refresh in the European afternoon (before most kick-offs).
     - cron: "0 15 * * *"
   workflow_dispatch:

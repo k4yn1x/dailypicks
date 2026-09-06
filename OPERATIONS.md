@@ -5,14 +5,14 @@
 | Piece | Where | Notes |
 |---|---|---|
 | Website | Claude artifact **DailyPicks Goal Board** (private until shared) | Static single file; data embedded at build time. Opening it never runs the model. |
-| Daily refresh | Claude scheduled task **DailyPicks daily refresh (05:30 Chicago)** — cloud session, runs with your computer off | Two UTC slots (10:30 and 11:30) with a local-time gate so exactly one run happens at 05:30 America/Chicago across DST. |
+| Daily refresh | Claude scheduled task **DailyPicks daily refresh (01:00 WAT)** — cloud session, runs with your computer off | Single 00:00 UTC schedule = 01:00 Africa/Lagos (WAT has no daylight saving); the task still checks the local hour is 01 before running. |
 | State between runs | Claude artifact **DailyPicks Ops Bundle** | Source tree + immutable ledger + priors + closing-odds extracts + frozen evaluation + last board, packed as a tar.gz inside the page. The refresh restores it, runs, and republishes it. |
 | Optional upgrade | GitHub Actions (`.github/workflows/daily.yml`, `scripts/daily.sh`) | Deterministic cron with full internet access (ESPN cross-check with kick-off times, football-data odds refresh) and GitHub Pages hosting. Needs a repo + token. |
 
 ## Daily run, step by step
 
-1. Gate on local time (05:xx America/Chicago) unless forced.
-2. Restore the ops bundle → `python -m dailypicks.pipeline --trigger scheduled-0530-chicago`
+1. Gate on local time (01:xx Africa/Lagos) unless forced.
+2. Restore the ops bundle → `python -m dailypicks.pipeline --trigger scheduled-0100-wat`
    - lock file → ingest (git fetch openfootball, archive with hash, validate, atomic dataset swap)
    - settle open ledger rows that now have results
    - fit 8 league models → rate fixtures (gates: kick-off known and > now+15 min, ≥3 matches per team, converged fit, ≥10,000 valid simulations, valid distribution)
@@ -57,5 +57,5 @@ Changing any selection rule requires bumping `POLICY_VERSION`; changing model se
 ## Verification status of the hosted refresh (2026-09-05)
 
 - Pipeline, tests (47), site build and artifact publish were run and verified from the build session (board run_id 20260905T161803Z is live).
-- Both scheduled tasks exist and are enabled (10:30 and 11:30 UTC). A manual "FORCE" fire of the 10:30 task ended in 26 s without republishing (it evidently took the time-gate branch). A one-off verification task without the gate was fired at 16:31 UTC and was still running 50 minutes later when the build session ended; its result was NOT confirmed. Treat the first unattended 05:30 run (2026-09-06) as the acceptance test: it sends a push notification on completion, and the board's "Refreshed" pill shows the run time. If it does not refresh, the previous board stays live and shows a Stale warning after 30 h.
+- One scheduled task exists and is enabled (00:00 UTC = 01:00 WAT; the Chicago winter slot was deleted on 2026-09-06). A manual "FORCE" fire of the 10:30 task ended in 26 s without republishing (it evidently took the time-gate branch). A one-off verification task without the gate was fired at 16:31 UTC and was still running 50 minutes later when the build session ended; its result was NOT confirmed. Treat the first unattended 01:00 WAT run (2026-09-07 00:00 UTC) as the acceptance test: it sends a push notification on completion, and the board's "Refreshed" pill shows the run time. If it does not refresh, the previous board stays live and shows a Stale warning after 30 h.
 - Recommended hardening: move the refresh to GitHub Actions (`.github/workflows/daily.yml`), which removes the LLM from the daily loop.
