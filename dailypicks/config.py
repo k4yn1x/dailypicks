@@ -80,6 +80,6 @@ POLICY = {
 }
 
 # Refresh schedule
-REFRESH_LOCAL_TIME = "01:00"
-REFRESH_TZ = "Africa/Lagos"  # WAT, UTC+1, no DST -> 00:00 UTC
+REFRESH_LOCAL_TIME = "07:00"
+REFRESH_TZ = "Africa/Lagos"  # WAT, UTC+1, no DST -> 06:00 UTC
 STALE_AFTER_HOURS = 30

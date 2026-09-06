@@ -2,8 +2,8 @@ name: Daily refresh
 
 on:
   schedule:
-    # 01:00 Africa/Lagos (WAT, UTC+1, no daylight saving) = 00:00 UTC.
-    - cron: "0 0 * * *"
+    # 07:00 Africa/Lagos (WAT, UTC+1, no daylight saving) = 06:00 UTC.
+    - cron: "0 6 * * *"
     # Lighter fixture-status refresh in the European afternoon (before most kick-offs).
     - cron: "0 15 * * *"
   workflow_dispatch:
