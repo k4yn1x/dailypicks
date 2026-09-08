@@ -32,18 +32,25 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Tests
+        run: python -m pytest -q
       - name: Run pipeline (gated to 07:00 Africa/Lagos unless forced)
         env:
           FORCE: ${{ github.event.inputs.force || 'false' }}
           TRIGGER: ${{ github.event_name }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: bash scripts/daily.sh
       - name: Commit ledger and published board
         run: |
           git config user.name "dailypicks-bot"
           git config user.email "dailypicks-bot@users.noreply.github.com"
-          git add data/ledger.sqlite data/published data/promoted_priors.json data/watchlist/watchlist.json data/eval/test_frozen.json site/dist || true
+          git add data/ledger.sqlite data/published data/promoted_priors.json data/watchlist/watchlist.json data/eval/test_frozen.json
           git diff --cached --quiet || git commit -m "refresh: $(date -u +%FT%TZ) [skip ci]"
           git push
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
