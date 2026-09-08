@@ -1,6 +1,6 @@
 """Independent fixture cross-check against ESPN's public scoreboard endpoint.
 
-    https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates=YYYYMMDD
+    https://site.web.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates=YYYYMMDD
 
 Used only to VERIFY fixtures (teams, kickoff, status) produced from the primary
 source; never as training data. If the endpoint is unreachable from the
@@ -22,7 +22,7 @@ from ..teams import COUNTRY_OF_COMP, canonical_id
 ESPN_LEAGUE = {"en.1": "eng.1", "de.1": "ger.1", "es.1": "esp.1", "it.1": "ita.1", "fr.1": "fra.1",
                "nl.1": "ned.1", "pt.1": "por.1", "en.2": "eng.2"}
 CACHE_DIR = DATA_DIR / "espn"
-URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates={date}"
+URL = "https://site.web.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard?dates={date}"
 
 # ESPN spellings that the generic normaliser does not resolve.
 _EXTRA = {
