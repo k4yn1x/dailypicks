@@ -1,4 +1,6 @@
-# DailyPicks — football goal-market research board
+# DailyPicks
+
+Live board: https://k4yn1x.github.io/dailypicks/ — refreshed daily at 07:00 WAT by GitHub Actions (see OPERATIONS.md). — football goal-market research board
 
 A research board (not a betting service) that rates upcoming fixtures in eight
 European leagues with a Dixon–Coles goal model, runs 10,000 coherent
