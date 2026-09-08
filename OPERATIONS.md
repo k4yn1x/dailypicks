@@ -5,7 +5,7 @@
 | Piece | Where | Notes |
 |---|---|---|
 | Website | Claude artifact **DailyPicks Goal Board** (private until shared) | Static single file; data embedded at build time. Opening it never runs the model. |
-| Daily refresh | Claude scheduled task **DailyPicks daily refresh (07:00 WAT)** — cloud session, runs with your computer off | Single 06:00 UTC schedule = 07:00 Africa/Lagos (WAT has no daylight saving); the task still checks the local hour is 01 before running. |
+| Daily refresh | Claude scheduled task **DailyPicks daily refresh (07:00 WAT)** — cloud session, runs with your computer off | Single 06:00 UTC schedule = 07:00 Africa/Lagos (WAT has no daylight saving); the task still checks the local hour is 07 before running. |
 | State between runs | Claude artifact **DailyPicks Ops Bundle** | Source tree + immutable ledger + priors + closing-odds extracts + frozen evaluation + last board, packed as a tar.gz inside the page. The refresh restores it, runs, and republishes it. |
 | Optional upgrade | GitHub Actions (`.github/workflows/daily.yml`, `scripts/daily.sh`) | Deterministic cron with full internet access (ESPN cross-check with kick-off times, football-data odds refresh) and GitHub Pages hosting. Needs a repo + token. |
 
@@ -47,7 +47,7 @@ Per fixture, the same 10,000 simulated scores settle 15 lines: home-team goals, 
 ```
 python -m dailypicks.pipeline --offline        # rebuild the board from the already-cloned data (no network)
 python scripts/build_site.py                   # rebuild site/dist
-python -m pytest -q                            # 47 tests
+python -m pytest -q                            # 51 tests
 python scripts/make_bundle.py bundle.html      # pack state
 python scripts/make_bundle.py --restore bundle.html /path/to/dir
 ```
@@ -59,3 +59,7 @@ Changing any selection rule requires bumping `POLICY_VERSION`; changing model se
 - Pipeline, tests (47), site build and artifact publish were run and verified from the build session (board run_id 20260905T161803Z is live).
 - One scheduled task exists and is enabled (06:00 UTC = 07:00 WAT; the Chicago winter slot was deleted on 2026-09-06). A manual "FORCE" fire of the 10:30 task ended in 26 s without republishing (it evidently took the time-gate branch). A one-off verification task without the gate was fired at 16:31 UTC and was still running 50 minutes later when the build session ended; its result was NOT confirmed. Treat the first unattended 07:00 WAT run (2026-09-07 06:00 UTC) as the acceptance test: it sends a push notification on completion, and the board's "Refreshed" pill shows the run time. If it does not refresh, the previous board stays live and shows a Stale warning after 30 h.
 - Recommended hardening: move the refresh to GitHub Actions (`.github/workflows/daily.yml`), which removes the LLM from the daily loop.
+
+## Acceptance result (2026-09-08)
+
+- The first fully unattended 07:00 WAT refresh ran on 2026-09-08 (fired 06:25 UTC, SUCCEEDED, 2m41s). The live board carries run_id 20260908T062632Z, policy select-2.0.0, 7/7 fixtures rated, cross-check partial (13 league-dates, 12 verified, 1 mismatch; later dates unavailable via proxy), odds not configured. The ops bundle was republished the same day.

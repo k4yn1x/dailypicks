@@ -32,7 +32,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
-      - name: Run pipeline (gated to 05:30 America/Chicago unless forced)
+      - name: Run pipeline (gated to 07:00 Africa/Lagos unless forced)
         env:
           FORCE: ${{ github.event.inputs.force || 'false' }}
           TRIGGER: ${{ github.event_name }}
