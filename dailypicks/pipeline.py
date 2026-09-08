@@ -184,7 +184,7 @@ def build_board(now: datetime, horizon_days: int = 7, cross_check: bool = True, 
                     try:
                         data = espn.fetch(*key)
                     except Exception as e:  # noqa: BLE001
-                        errors.append(f"{key}: {type(e).__name__}"); data = None
+                        errors.append(f"{key}: {type(e).__name__} {str(e)[:60]}".rstrip()); data = None
                 cache[key] = espn.events(fx["competition"], data) if data else None
             evs = cache[key]
             if evs is None:

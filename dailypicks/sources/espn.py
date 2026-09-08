@@ -36,13 +36,23 @@ _EXTRA = {
 }
 
 
+HEADERS = {
+    # ESPN's public scoreboard endpoint answers browser-like clients; bare library user-agents get 403 from some edges.
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.espn.com/",
+}
+
+
 def fetch(competition: str, date: str, timeout: int = 20) -> dict:
     """Fetch and cache the ESPN scoreboard for a competition on `date` (YYYY-MM-DD)."""
     d = date.replace("-", "")
     league = ESPN_LEAGUE[competition]
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    r = requests.get(URL.format(league=league, date=d), timeout=timeout, headers={"User-Agent": "dailypicks/1.0"})
-    r.raise_for_status()
+    r = requests.get(URL.format(league=league, date=d), timeout=timeout, headers=HEADERS)
+    if r.status_code != 200:
+        raise requests.HTTPError(f"HTTP {r.status_code} for {league} {d}", response=r)
     data = r.json()
     (CACHE_DIR / f"{d}_{competition}.json").write_text(json.dumps({"retrieved_at": datetime.now(timezone.utc).isoformat(), "data": data}))
     return data
